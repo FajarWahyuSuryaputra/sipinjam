@@ -22,7 +22,7 @@ class MainApp extends StatelessWidget {
             textTheme: GoogleFonts.latoTextTheme(),
             elevatedButtonTheme: const ElevatedButtonThemeData(
                 style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(AppColors.biruTua),
+                    backgroundColor: WidgetStatePropertyAll(AppColors.biruMuda),
                     shape: WidgetStatePropertyAll(
                       RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10))),
@@ -30,7 +30,7 @@ class MainApp extends StatelessWidget {
                     padding: WidgetStatePropertyAll(
                         EdgeInsets.symmetric(horizontal: 16, vertical: 14)),
                     textStyle: WidgetStatePropertyAll(
-                        TextStyle(fontSize: 15, color: Colors.white))))),
+                        TextStyle(fontSize: 15, color: Colors.black))))),
         home: const LoginPage());
   }
 }
