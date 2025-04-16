@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class AppConstans {
-  static const _host = 'http:192.168.8.1:8000';
-  static const _baseUrl = '$_host/api';
-  static const _imageUrl = '$_baseUrl/assets';
+  static const _host = 'http://192.168.1.8:8000';
+  static const baseUrl = '$_host/api';
+  static const imageUrl = '$baseUrl/assets';
 
   static List<Map> navMenuDashboard = [
     {

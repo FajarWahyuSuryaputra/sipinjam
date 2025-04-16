@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:d_method/d_method.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:sipinjam/config/failure.dart';
 
 class AppResponse {
   static Map data(Response response) {
-    print(response);
+    DMethod.printResponse(response);
 
     switch (response.statusCode) {
       case 200:
