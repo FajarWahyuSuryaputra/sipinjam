@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sipinjam/config/app_colors.dart';
 import 'package:sipinjam/config/app_session.dart';
+import 'package:sipinjam/pages/dashboard.dart';
 import 'package:sipinjam/pages/login_page.dart';
 
 void main() {
@@ -31,6 +32,15 @@ class MainApp extends StatelessWidget {
                         EdgeInsets.symmetric(horizontal: 16, vertical: 14)),
                     textStyle: WidgetStatePropertyAll(
                         TextStyle(fontSize: 15, color: Colors.black))))),
-        home: const LoginPage());
+        home: FutureBuilder(
+          future: AppSession.getUser(),
+          builder: (context, snapshot) {
+            if (snapshot.data == null) {
+              return const LoginPage();
+            }
+
+            return const Dashboard();
+          },
+        ));
   }
 }

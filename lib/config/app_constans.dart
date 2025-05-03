@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sipinjam/pages/dashboardView/profile/account_view.dart';
 
 class AppConstans {
   static const _host = 'http://192.168.1.8:8000';
@@ -27,7 +28,7 @@ class AppConstans {
       'label': 'Calendar',
     },
     {
-      'view': const Text('User'),
+      'view': const AccountView(),
       'icon': Icons.person,
       'label': 'User',
     },

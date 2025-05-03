@@ -84,128 +84,134 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Stack(
-      children: [
-        backgroundPattern(context),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(28, 28, 28, 0),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'SIPINJAM',
-                  style: TextStyle(
-                      fontSize: 36, height: 1, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(left: 10),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Let\'s get you sign in!',
-                        style: TextStyle(
-                          color: AppColors.biruMuda,
-                        ),
-                      )),
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                Form(
-                    key: formKey,
-                    child: Column(
-                      children: [
-                        Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black45,
-                                  offset: Offset(4, 4),
-                                  blurRadius: 2),
-                            ],
-                          ),
-                          child: TextField(
-                            controller: edtUsername,
-                            decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                prefixIcon: Icon(Icons.person),
-                                hintText: 'Username',
-                                contentPadding: EdgeInsets.only(top: 12)),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black45,
-                                  offset: Offset(4, 4),
-                                  blurRadius: 2),
-                            ],
-                          ),
-                          child: TextField(
-                            controller: edtPassword,
-                            obscureText: hidePass,
-                            decoration: InputDecoration(
-                                border: InputBorder.none,
-                                prefixIcon: const Icon(Icons.lock),
-                                hintText: 'Password',
-                                suffixIcon: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        hidePass = !hidePass;
-                                      });
-                                    },
-                                    icon: Icon(hidePass
-                                        ? Icons.visibility
-                                        : Icons.visibility_off)),
-                                contentPadding: const EdgeInsets.only(top: 12)),
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.only(top: 20),
-                          width: double.infinity,
-                          child: Consumer(
-                            builder: (_, wiRef, __) {
-                              String status = wiRef.watch(loginStatusProvider);
-                              if (status == 'Loading') {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
+          children: [
+            backgroundPattern(context),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(28, 28, 28, 0),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'SIPINJAM',
+                      style: TextStyle(
+                          fontSize: 36, height: 1, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Let\'s get you sign in!',
+                            style: TextStyle(
+                              color: AppColors.biruMuda,
+                            ),
+                          )),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    Form(
+                        key: formKey,
+                        child: Column(
+                          children: [
+                            Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.black45,
+                                      offset: Offset(4, 4),
+                                      blurRadius: 2),
+                                ],
+                              ),
+                              child: TextField(
+                                controller: edtUsername,
+                                decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    prefixIcon: Icon(Icons.person),
+                                    hintText: 'Username',
+                                    contentPadding: EdgeInsets.only(top: 12)),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 12,
+                            ),
+                            Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.black45,
+                                      offset: Offset(4, 4),
+                                      blurRadius: 2),
+                                ],
+                              ),
+                              child: TextField(
+                                controller: edtPassword,
+                                obscureText: hidePass,
+                                decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    prefixIcon: const Icon(Icons.lock),
+                                    hintText: 'Password',
+                                    suffixIcon: IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            hidePass = !hidePass;
+                                          });
+                                        },
+                                        icon: Icon(hidePass
+                                            ? Icons.visibility
+                                            : Icons.visibility_off)),
+                                    contentPadding:
+                                        const EdgeInsets.only(top: 12)),
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(top: 20),
+                              width: double.infinity,
+                              child: Consumer(
+                                builder: (_, wiRef, __) {
+                                  String status =
+                                      wiRef.watch(loginStatusProvider);
+                                  if (status == 'Loading') {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
 
-                              return ElevatedButton(
-                                  onPressed: () => execute(),
-                                  style: const ButtonStyle(
-                                      backgroundColor:
-                                          WidgetStatePropertyAll(Colors.amber)),
-                                  child: const Text(
-                                    'Sign In',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500),
-                                  ));
-                            },
-                          ),
-                        )
-                      ],
-                    )),
-              ],
-            ),
-          ),
-        )
-      ],
-    ));
+                                  return ElevatedButton(
+                                      onPressed: () => execute(),
+                                      style: const ButtonStyle(
+                                          backgroundColor:
+                                              WidgetStatePropertyAll(
+                                                  Colors.amber)),
+                                      child: const Text(
+                                        'Sign In',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500),
+                                      ));
+                                },
+                              ),
+                            )
+                          ],
+                        )),
+                  ],
+                ),
+              ),
+            )
+          ],
+        ));
   }
 
   Column backgroundPattern(BuildContext context) {

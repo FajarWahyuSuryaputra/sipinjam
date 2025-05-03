@@ -11,12 +11,12 @@ class UserDatasource {
       String username, String password) async {
     Uri url = Uri.parse('${AppConstans.baseUrl}/routes/authentications.php');
     try {
-      final response = await http.post(url, headers: {
-        "Accept": "application/json"
-      }, body: {
-        "nama_peminjam": username,
-        "password": password,
-      });
+      final response = await http.post(url,
+          headers: {"Accept": "application/json"},
+          body: jsonEncode({
+            "nama_peminjam": username,
+            "password": password,
+          }));
       final data = AppResponse.data(response);
       return Right(data);
     } catch (e) {

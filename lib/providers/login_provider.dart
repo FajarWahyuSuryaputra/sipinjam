@@ -5,6 +5,5 @@ final loginStatusProvider = StateProvider.autoDispose(
 );
 
 setLoginStatus(WidgetRef ref, String newStatus) {
-  print('setLoginStatus\n$newStatus');
   ref.read(loginStatusProvider.notifier).state = newStatus;
 }
