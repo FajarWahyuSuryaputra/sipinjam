@@ -22,7 +22,7 @@ class PeminjamModel {
   factory PeminjamModel.fromJson(Map<String, dynamic> json) => PeminjamModel(
         idPeminjam: json["id_peminjam"],
         namaPeminjam: json["nama_peminjam"],
-        password: json["password"],
+        password: json["password"] ?? "",
         namaLengkap: json["nama_lengkap"],
         email: json["email"],
         noTelpon: json["no_telpon"],

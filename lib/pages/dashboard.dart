@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sipinjam/config/app_colors.dart';
 import 'package:sipinjam/config/app_constans.dart';
 import 'package:sipinjam/providers/dashboard_provider.dart';
 
@@ -26,7 +27,7 @@ class _DashboardState extends State<Dashboard> {
           int navIndex = WiRef.watch(dashboardNavIndexProvider);
           return Material(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-            color: Colors.white,
+            color: AppColors.gray,
             elevation: 10,
             child: BottomNavigationBar(
                 currentIndex: navIndex,
@@ -40,7 +41,7 @@ class _DashboardState extends State<Dashboard> {
                 showUnselectedLabels: false,
                 showSelectedLabels: false,
                 selectedItemColor: Colors.black,
-                unselectedItemColor: Colors.grey[400],
+                unselectedItemColor: Colors.grey[600],
                 items: AppConstans.navMenuDashboard.map(
                   (e) {
                     return BottomNavigationBarItem(
