@@ -6,6 +6,8 @@ class AppConstans {
   static const _host = 'http://192.168.1.7:8000';
   static const baseUrl = '$_host/api';
   static const imageUrl = '$baseUrl/assets';
+  // ../../../api/assets/gedung/mst.jpg
+  // http://192.168.1.7:8000/api/assets/gedung/mst.jpg
 
   static List<Map> navMenuDashboard = [
     {
