@@ -38,27 +38,27 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         value.fold(
           (failure) {
             switch (failure.runtimeType) {
-              case ServerFailure:
+              case ServerFailure _:
                 newStatus = 'Server Error';
                 DInfo.toastError(newStatus);
                 break;
-              case NotFoundFailure:
+              case NotFoundFailure _:
                 newStatus = 'Error Not Found';
                 DInfo.toastError(newStatus);
                 break;
-              case ForbiddenFailure:
+              case ForbiddenFailure _:
                 newStatus = 'You don\' have access';
                 DInfo.toastError(newStatus);
                 break;
-              case BadRequestFailure:
+              case BadRequestFailure _:
                 newStatus = 'Bad request';
                 DInfo.toastError(newStatus);
                 break;
-              case InvalidInputFailure:
+              case InvalidInputFailure _:
                 newStatus = 'Invalid Input';
                 AppResponse.invalidInput(context, failure.message ?? '{}');
                 break;
-              case UnauthorizedFailure:
+              case UnauthorizedFailure _:
                 newStatus = 'Login Failed';
                 DInfo.toastError(newStatus);
                 break;

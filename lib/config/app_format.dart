@@ -7,9 +7,9 @@ class AppFormat {
 
   static String shortDate(source) {
     switch (source.runtimeType) {
-      case String:
+      case String _:
         return DateFormat('d MMM yy').format(DateTime.parse(source));
-      case DateTime:
+      case DateTime _:
         return DateFormat('d MMM yy').format(source);
       default:
         return 'not valid';

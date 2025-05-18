@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sipinjam/config/app_colors.dart';
 import 'package:sipinjam/config/app_constans.dart';
-import 'package:sipinjam/config/app_session.dart';
 import 'package:sipinjam/datasources/gedung_datasourcce.dart';
 import 'package:sipinjam/datasources/peminjaman_datasource.dart';
 import 'package:sipinjam/models/gedung_model.dart';
 import 'package:sipinjam/models/peminjam_model.dart';
+import 'package:sipinjam/models/peminjaman_model.dart';
 import 'package:sipinjam/providers/gedung_provider.dart';
+import 'package:sipinjam/providers/peminjaman_provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../../config/failure.dart';
@@ -29,16 +30,16 @@ class _HomePageState extends ConsumerState<HomePage> {
               case ServerFailure _:
                 setGedungStatus(ref, 'Server Error');
                 break;
-              case NotFoundFailure:
+              case NotFoundFailure _:
                 setGedungStatus(ref, 'Error Not Found');
                 break;
-              case ForbiddenFailure:
+              case ForbiddenFailure _:
                 setGedungStatus(ref, 'You don\'t have access');
                 break;
-              case BadRequestFailure:
+              case BadRequestFailure _:
                 setGedungStatus(ref, 'Bad request');
                 break;
-              case UnauthorizedFailure:
+              case UnauthorizedFailure _:
                 setGedungStatus(ref, 'Unauthorised');
                 break;
               default:
@@ -61,43 +62,51 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  late PeminjamModel peminjam;
   getPeminjaman() {
-    Future<PeminjamModel?> user = AppSession.getUser();
-    PeminjamModel peminjam = user;
-    PeminjamanDatasource.peminjamanByOrmawa(peminjam.).then(
+    PeminjamanDatasource.peminjamanByOrmawa(peminjam.idOrmawa).then(
       (value) {
         value.fold(
           (failure) {
             switch (failure.runtimeType) {
               case ServerFailure _:
-                setGedungStatus(ref, 'Server Error');
+                setPeminjamanStatus(ref, 'Server Error');
                 break;
-              case NotFoundFailure:
-                setGedungStatus(ref, 'Error Not Found');
+              case NotFoundFailure _:
+                setPeminjamanStatus(ref, 'Error Not Found');
                 break;
-              case ForbiddenFailure:
-                setGedungStatus(ref, 'You don\'t have access');
+              case ForbiddenFailure _:
+                setPeminjamanStatus(ref, 'You don\'t have access');
                 break;
-              case BadRequestFailure:
-                setGedungStatus(ref, 'Bad request');
+              case BadRequestFailure _:
+                setPeminjamanStatus(ref, 'Bad request');
                 break;
-              case UnauthorizedFailure:
-                setGedungStatus(ref, 'Unauthorised');
+              case UnauthorizedFailure _:
+                setPeminjamanStatus(ref, 'Unauthorised');
                 break;
               default:
-                setGedungStatus(ref, 'Request Error');
+                setPeminjamanStatus(ref, 'Request Error');
                 break;
             }
           },
           (result) {
-            setGedungStatus(ref, "Success");
+            setPeminjamanStatus(ref, "Success");
             List data = result['data'];
-            List<GedungModel> gedungs = data
+            List<PeminjamanModel> peminjaman = data
+                .where(
+                  (element) {
+                    final tglPeminjaman =
+                        DateTime.tryParse('${element.tglPeminjaman}');
+                    return element.namaStatus != 'ditolak' &&
+                        tglPeminjaman != null &&
+                        tglPeminjaman.isAfter(DateTime.now());
+                  },
+                )
                 .map(
-                  (e) => GedungModel.fromJson(e),
+                  (e) => PeminjamanModel.fromJson(e),
                 )
                 .toList();
-            ref.read(gedungProvider.notifier).setData(gedungs);
+            ref.read(peminjamanProvider.notifier).setData(peminjaman);
           },
         );
       },

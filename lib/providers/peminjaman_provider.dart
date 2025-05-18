@@ -1,7 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sipinjam/models/peminjaman_model.dart';
 
-final peminjamanByOrmawaStatus = StateProvider.autoDispose(
+final peminjamanStatusProvider = StateProvider.autoDispose(
   (ref) => '',
 );
 
-class PeminjamanOrmawa {}
+setPeminjamanStatus(WidgetRef ref, String newStatus) {
+  ref.read(peminjamanStatusProvider.notifier).state = newStatus;
+}
+
+final peminjamanProvider =
+    StateNotifierProvider.autoDispose<PeminjamanList, List<PeminjamanModel>>(
+  (ref) => PeminjamanList([]),
+);
+
+class PeminjamanList extends StateNotifier<List<PeminjamanModel>> {
+  PeminjamanList(super.state);
+
+  setData(List<PeminjamanModel> newData) {
+    state = newData;
+  }
+}

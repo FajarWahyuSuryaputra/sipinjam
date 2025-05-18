@@ -16,15 +16,15 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer(
-        builder: (_, WiRef, __) {
-          int navIndex = WiRef.watch(dashboardNavIndexProvider);
+        builder: (_, wiRef, __) {
+          int navIndex = wiRef.watch(dashboardNavIndexProvider);
           return AppConstans.navMenuDashboard[navIndex]['view'] as Widget;
         },
       ),
       // extendBody: true,
       bottomNavigationBar: Consumer(
-        builder: (_, WiRef, __) {
-          int navIndex = WiRef.watch(dashboardNavIndexProvider);
+        builder: (_, wiRef, __) {
+          int navIndex = wiRef.watch(dashboardNavIndexProvider);
           return Material(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
             color: AppColors.gray,
@@ -36,7 +36,7 @@ class _DashboardState extends State<Dashboard> {
                 iconSize: 25,
                 type: BottomNavigationBarType.fixed,
                 onTap: (value) {
-                  WiRef.read(dashboardNavIndexProvider.notifier).state = value;
+                  wiRef.read(dashboardNavIndexProvider.notifier).state = value;
                 },
                 showUnselectedLabels: false,
                 showSelectedLabels: false,
