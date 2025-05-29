@@ -1,7 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sipinjam/config/app_colors.dart';
 import 'package:sipinjam/config/app_constans.dart';
+import 'package:sipinjam/config/app_format.dart';
+import 'package:sipinjam/config/app_session.dart';
 import 'package:sipinjam/datasources/gedung_datasourcce.dart';
 import 'package:sipinjam/datasources/peminjaman_datasource.dart';
 import 'package:sipinjam/models/gedung_model.dart';
@@ -93,19 +96,18 @@ class _HomePageState extends ConsumerState<HomePage> {
             setPeminjamanStatus(ref, "Success");
             List data = result['data'];
             List<PeminjamanModel> peminjaman = data
-                .where(
-                  (element) {
-                    final tglPeminjaman =
-                        DateTime.tryParse('${element.tglPeminjaman}');
-                    return element.namaStatus != 'ditolak' &&
-                        tglPeminjaman != null &&
-                        tglPeminjaman.isAfter(DateTime.now());
-                  },
-                )
                 .map(
-                  (e) => PeminjamanModel.fromJson(e),
-                )
-                .toList();
+              (e) => PeminjamanModel.fromJson(e),
+            )
+                .where(
+              (element) {
+                final tglPeminjaman =
+                    DateTime.tryParse('${element.tglPeminjaman}');
+                return element.namaStatus != 'ditolak' &&
+                    tglPeminjaman != null &&
+                    tglPeminjaman.isAfter(DateTime.now());
+              },
+            ).toList();
             ref.read(peminjamanProvider.notifier).setData(peminjaman);
           },
         );
@@ -120,8 +122,13 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   void initState() {
-    refresh();
     super.initState();
+    AppSession.getUser().then(
+      (value) {
+        peminjam = value!;
+        refresh();
+      },
+    );
   }
 
   @override
@@ -134,27 +141,137 @@ class _HomePageState extends ConsumerState<HomePage> {
           header(),
           const SizedBox(height: 20),
           gedung(),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  'Ruangan yang dipinjam',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-              ],
-            ),
-          )
+          const SizedBox(
+            height: 20,
+          ),
+          peminjaman()
         ],
       ),
     ));
+  }
+
+  Consumer peminjaman() {
+    Color statusColor(String status) {
+      switch (status) {
+        case 'disetujui':
+          return Colors.green[700]!;
+        case 'proses':
+          return Colors.blue[900]!;
+        case 'ditolak':
+          return Colors.red[700]!;
+        default:
+          return Colors.black;
+      }
+    }
+
+    return Consumer(
+      builder: (_, wiRef, __) {
+        List<PeminjamanModel> listPeminjaman = wiRef.watch(peminjamanProvider);
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Ruangan yang dipinjam',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              if (listPeminjaman.isEmpty)
+                AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Container(
+                    color: Colors.grey,
+                    child: const Center(
+                      child: Text('Tidak ada ruangan yang dipinjam'),
+                    ),
+                  ),
+                ),
+              if (listPeminjaman.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.only(bottom: 30),
+                  width: double.infinity,
+                  height: MediaQuery.sizeOf(context).height * 0.4,
+                  child: ListView.builder(
+                    itemCount: listPeminjaman.length,
+                    itemBuilder: (context, index) {
+                      PeminjamanModel peminjaman = listPeminjaman[index];
+                      return Column(
+                        children: [
+                          Material(
+                            borderRadius: BorderRadius.circular(16),
+                            elevation: 3,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    peminjaman.namaRuangan,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 4,
+                                  ),
+                                  Text(
+                                    peminjaman.namaKegiatan,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 14,
+                                  ),
+                                  Container(
+                                    height: 3,
+                                    width: double.infinity,
+                                    color: Colors.grey[800],
+                                  ),
+                                  const SizedBox(
+                                    height: 6,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        AppFormat.justDate(
+                                            peminjaman.tglPeminjaman),
+                                        style: const TextStyle(fontSize: 10),
+                                      ),
+                                      Text(
+                                        peminjaman.namaStatus,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 10,
+                                          color: statusColor(
+                                              peminjaman.namaStatus),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          )
+                        ],
+                      );
+                    },
+                  ),
+                )
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Consumer gedung() {
@@ -224,7 +341,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
             ),
             const SizedBox(
-              height: 8,
+              height: 12,
             ),
             SmoothPageIndicator(
               controller: pageController,
@@ -232,7 +349,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               effect: const SwapEffect(
                   dotWidth: 10,
                   dotHeight: 10,
-                  activeDotColor: AppColors.biruTua),
+                  activeDotColor: AppColors.biruMuda),
             )
           ],
         );

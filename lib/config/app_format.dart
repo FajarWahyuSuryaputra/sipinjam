@@ -2,7 +2,7 @@ import 'package:intl/intl.dart';
 
 class AppFormat {
   static String justDate(DateTime dateTime) {
-    return DateFormat('dd-mm-yyyy').format(dateTime);
+    return DateFormat('dd MMMM yyyy').format(dateTime);
   }
 
   static String shortDate(source) {
