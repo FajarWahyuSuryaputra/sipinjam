@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sipinjam/config/app_colors.dart';
@@ -190,10 +189,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ),
                 ),
               if (listPeminjaman.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.only(bottom: 30),
+                SizedBox(
                   width: double.infinity,
-                  height: MediaQuery.sizeOf(context).height * 0.4,
+                  height: MediaQuery.sizeOf(context).height * 0.32,
                   child: ListView.builder(
                     itemCount: listPeminjaman.length,
                     itemBuilder: (context, index) {

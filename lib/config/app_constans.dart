@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:sipinjam/pages/dashboardView/history.dart';
 import 'package:sipinjam/pages/dashboardView/home/home_page.dart';
 import 'package:sipinjam/pages/dashboardView/profile/account_view.dart';
 
 class AppConstans {
-  static const _host = 'http://10.0.2.2:8000';
+  static const _host = 'http://10.0.2.2/sipinjamfix/sipinjam';
   static const baseUrl = '$_host/api';
   static const imageUrl = '$baseUrl/assets';
 
@@ -14,7 +15,7 @@ class AppConstans {
       'label': 'Home',
     },
     {
-      'view': const Text('History'),
+      'view': const History(),
       'icon': Icons.history,
       'label': 'History',
     },
