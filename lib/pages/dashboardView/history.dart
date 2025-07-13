@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sipinjam/config/app_session.dart';
@@ -62,7 +60,6 @@ class _HistoryState extends ConsumerState<History> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     AppSession.getUser().then(
       (value) {
@@ -115,8 +112,6 @@ class _HistoryState extends ConsumerState<History> {
                     return Column(
                       children: [
                         Container(
-                          // borderRadius: BorderRadius.circular(16),
-                          // elevation: 3,
                           margin: const EdgeInsets.only(right: 8),
                           decoration: BoxDecoration(
                             color: Colors.white,
