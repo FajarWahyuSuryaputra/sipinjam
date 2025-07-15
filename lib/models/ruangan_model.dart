@@ -6,8 +6,8 @@ class RuanganModel {
   String? deskripsiRuangan;
   int kapasitas;
   String namaPeminjam;
-  String namaFasilitas;
-  List<String> fotoRuangan;
+  String? namaFasilitas;
+  List<String>? fotoRuangan;
 
   RuanganModel({
     required this.idRuangan,
@@ -17,8 +17,8 @@ class RuanganModel {
     this.deskripsiRuangan,
     required this.kapasitas,
     required this.namaPeminjam,
-    required this.namaFasilitas,
-    required this.fotoRuangan,
+    this.namaFasilitas,
+    this.fotoRuangan,
   });
 
   factory RuanganModel.fromJson(Map<String, dynamic> json) => RuanganModel(
@@ -30,7 +30,9 @@ class RuanganModel {
         kapasitas: json["kapasitas"],
         namaPeminjam: json["nama_peminjam"],
         namaFasilitas: json["nama_fasilitas"],
-        fotoRuangan: List<String>.from(json["foto_ruangan"].map((x) => x)),
+        fotoRuangan: json["foto_ruangan"] != null
+            ? List<String>.from(json["foto_ruangan"].map((x) => x))
+            : [],
       );
 
   Map<String, dynamic> toJson() => {
@@ -42,6 +44,8 @@ class RuanganModel {
         "kapasitas": kapasitas,
         "nama_peminjam": namaPeminjam,
         "nama_fasilitas": namaFasilitas,
-        "foto_ruangan": List<dynamic>.from(fotoRuangan.map((x) => x)),
+        "foto_ruangan": fotoRuangan != null
+            ? List<dynamic>.from(fotoRuangan!.map((x) => x))
+            : [],
       };
 }

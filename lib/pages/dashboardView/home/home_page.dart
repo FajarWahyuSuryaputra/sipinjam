@@ -4,11 +4,13 @@ import 'package:sipinjam/config/app_colors.dart';
 import 'package:sipinjam/config/app_constans.dart';
 import 'package:sipinjam/config/app_format.dart';
 import 'package:sipinjam/config/app_session.dart';
+import 'package:sipinjam/config/nav.dart';
 import 'package:sipinjam/datasources/gedung_datasourcce.dart';
 import 'package:sipinjam/datasources/peminjaman_datasource.dart';
 import 'package:sipinjam/models/gedung_model.dart';
 import 'package:sipinjam/models/peminjam_model.dart';
 import 'package:sipinjam/models/peminjaman_model.dart';
+import 'package:sipinjam/pages/dashboardView/home/room_page.dart';
 import 'package:sipinjam/providers/gedung_provider.dart';
 import 'package:sipinjam/providers/peminjaman_provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -137,9 +139,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       onRefresh: () async => refresh(),
       child: ListView(
         children: [
-          header(),
-          const SizedBox(height: 20),
-          gedung(),
+          // const SizedBox(height: 20),
+          Stack(children: [
+            gedung(),
+            header(),
+          ]),
           const SizedBox(
             height: 20,
           ),
@@ -273,7 +277,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Consumer gedung() {
-    PageController pageController = PageController(viewportFraction: 0.85);
+    PageController pageController = PageController(viewportFraction: 1);
     return Consumer(
       builder: (_, wiRef, __) {
         List<GedungModel> list = wiRef.watch(gedungProvider);
@@ -292,62 +296,72 @@ class _HomePageState extends ConsumerState<HomePage> {
             )),
           );
         }
-        return Column(
+        return Stack(
+          alignment: Alignment.bottomLeft,
           children: [
             SizedBox(
-              height: 210,
+              height: 300,
               child: PageView.builder(
                 controller: pageController,
                 itemCount: list.length,
                 itemBuilder: (context, index) {
                   GedungModel item = list[index];
                   return Container(
-                    margin: EdgeInsets.only(
-                        right: index != list.length - 1 ? 8 : 0),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(15)),
-                              image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(
-                                      '${AppConstans.imageUrl}${item.fotoGedung.replaceAll('../../../api/assets/', '/')}'))),
-                        ),
-                        Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: const BoxDecoration(
-                                color: AppColors.gray,
-                                borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(15),
-                                    topRight: Radius.circular(10))),
-                            child: Text(
-                              item.namaGedung,
-                              style: const TextStyle(
-                                  height: 1, fontWeight: FontWeight.bold),
-                            ),
+                    // margin: EdgeInsets.only(
+                    //     right: index != list.length - 1 ? 8 : 0),
+                    child: GestureDetector(
+                      onTap: () => Nav.push(context, RoomPage(gedung: item)),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.vertical(
+                                    bottom: Radius.circular(15)),
+                                image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: NetworkImage(
+                                        '${AppConstans.imageUrl}${item.fotoGedung.replaceAll('../../../api/assets/', '/')}'))),
                           ),
-                        )
-                      ],
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                  color: AppColors.gray,
+                                  borderRadius: BorderRadius.only(
+                                      bottomRight: Radius.circular(15),
+                                      topLeft: Radius.circular(10))),
+                              child: Text(
+                                item.namaGedung,
+                                style: const TextStyle(
+                                    height: 1, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   );
                 },
               ),
             ),
-            const SizedBox(
-              height: 12,
-            ),
-            SmoothPageIndicator(
-              controller: pageController,
-              count: list.length,
-              effect: const SwapEffect(
-                  dotWidth: 10,
-                  dotHeight: 10,
-                  activeDotColor: AppColors.biruMuda),
+            Container(
+              height: 20,
+              decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                  ),
+                  color: AppColors.putih),
+              child: SmoothPageIndicator(
+                controller: pageController,
+                count: list.length,
+                effect: const SwapEffect(
+                    dotWidth: 8,
+                    dotHeight: 8,
+                    activeDotColor: AppColors.biruMuda),
+              ),
             )
           ],
         );
@@ -356,14 +370,18 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Padding header() {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: TextField(
-        decoration: InputDecoration(
-          prefixIcon: Icon(Icons.search),
-          hintText: "Search",
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(100))),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(100)),
+        child: const TextField(
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.search),
+            hintText: "Search",
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(100))),
+          ),
         ),
       ),
     );
