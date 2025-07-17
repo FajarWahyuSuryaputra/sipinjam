@@ -139,11 +139,9 @@ class _HomePageState extends ConsumerState<HomePage> {
       onRefresh: () async => refresh(),
       child: ListView(
         children: [
-          // const SizedBox(height: 20),
-          Stack(children: [
-            gedung(),
-            header(),
-          ]),
+          header(),
+          const SizedBox(height: 20),
+          gedung(),
           const SizedBox(
             height: 20,
           ),
@@ -277,7 +275,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Consumer gedung() {
-    PageController pageController = PageController(viewportFraction: 1);
+    PageController pageController = PageController(viewportFraction: 0.9);
     return Consumer(
       builder: (_, wiRef, __) {
         List<GedungModel> list = wiRef.watch(gedungProvider);
@@ -296,19 +294,18 @@ class _HomePageState extends ConsumerState<HomePage> {
             )),
           );
         }
-        return Stack(
-          alignment: Alignment.bottomLeft,
+        return Column(
           children: [
             SizedBox(
-              height: 300,
+              height: 210,
               child: PageView.builder(
                 controller: pageController,
                 itemCount: list.length,
                 itemBuilder: (context, index) {
                   GedungModel item = list[index];
                   return Container(
-                    // margin: EdgeInsets.only(
-                    //     right: index != list.length - 1 ? 8 : 0),
+                    margin: EdgeInsets.only(
+                        right: index != list.length - 1 ? 8 : 0),
                     child: GestureDetector(
                       onTap: () => Nav.push(context, RoomPage(gedung: item)),
                       child: Stack(
@@ -316,22 +313,22 @@ class _HomePageState extends ConsumerState<HomePage> {
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.vertical(
-                                    bottom: Radius.circular(15)),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(15)),
                                 image: DecorationImage(
                                     fit: BoxFit.cover,
                                     image: NetworkImage(
                                         '${AppConstans.imageUrl}${item.fotoGedung.replaceAll('../../../api/assets/', '/')}'))),
                           ),
                           Align(
-                            alignment: Alignment.bottomRight,
+                            alignment: Alignment.bottomLeft,
                             child: Container(
                               padding: const EdgeInsets.all(10),
                               decoration: const BoxDecoration(
                                   color: AppColors.gray,
                                   borderRadius: BorderRadius.only(
-                                      bottomRight: Radius.circular(15),
-                                      topLeft: Radius.circular(10))),
+                                      bottomLeft: Radius.circular(15),
+                                      topRight: Radius.circular(10))),
                               child: Text(
                                 item.namaGedung,
                                 style: const TextStyle(
@@ -346,22 +343,16 @@ class _HomePageState extends ConsumerState<HomePage> {
                 },
               ),
             ),
-            Container(
-              height: 20,
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(8),
-                    bottomLeft: Radius.circular(8),
-                  ),
-                  color: AppColors.putih),
-              child: SmoothPageIndicator(
-                controller: pageController,
-                count: list.length,
-                effect: const SwapEffect(
-                    dotWidth: 8,
-                    dotHeight: 8,
-                    activeDotColor: AppColors.biruMuda),
-              ),
+            const SizedBox(
+              height: 12,
+            ),
+            SmoothPageIndicator(
+              controller: pageController,
+              count: list.length,
+              effect: const SwapEffect(
+                  dotWidth: 8,
+                  dotHeight: 8,
+                  activeDotColor: AppColors.biruMuda),
             )
           ],
         );
