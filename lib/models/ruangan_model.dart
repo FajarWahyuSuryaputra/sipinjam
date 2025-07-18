@@ -29,7 +29,7 @@ class RuanganModel {
         deskripsiRuangan: json["deskripsi_ruangan"],
         kapasitas: json["kapasitas"],
         namaPeminjam: json["nama_peminjam"],
-        namaFasilitas: json["nama_fasilitas"],
+        namaFasilitas: json["nama_fasilitas"] ?? '',
         fotoRuangan: json["foto_ruangan"] != null
             ? List<String>.from(json["foto_ruangan"].map((x) => x))
             : [],
@@ -43,7 +43,7 @@ class RuanganModel {
         "deskripsi_ruangan": deskripsiRuangan,
         "kapasitas": kapasitas,
         "nama_peminjam": namaPeminjam,
-        "nama_fasilitas": namaFasilitas,
+        "nama_fasilitas": namaFasilitas ?? '',
         "foto_ruangan": fotoRuangan != null
             ? List<dynamic>.from(fotoRuangan!.map((x) => x))
             : [],

@@ -114,186 +114,56 @@ class _RoomPageState extends ConsumerState<RoomPage> {
                                     setExpandedRoom(
                                         ref, isExpanded ? null : index);
                                   },
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 400),
-                                    curve: Curves.easeInOut,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      color: Colors.white,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          blurRadius: 6,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Expanded(
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                image: DecorationImage(
-                                                    fit: BoxFit.cover,
-                                                    image: NetworkImage(
-                                                      // '${AppConstans.imageUrl}${ruangan.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}'
-                                                      isExpanded &&
-                                                              imgSelected
-                                                                  .isNotEmpty
-                                                          ? imgSelected
-                                                          : '${AppConstans.imageUrl}${ruangan.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}',
-                                                    ))),
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(seconds: 5),
+                                    switchInCurve: Curves.easeInOut,
+                                    switchOutCurve: Curves.easeInOut,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(12),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.05),
+                                            blurRadius: 6,
+                                            offset: const Offset(0, 2),
+                                          )
+                                        ],
+                                      ),
+                                      child: Column(
+                                        key: ValueKey(isExpanded
+                                            ? 'expanded_$index'
+                                            : 'default_$index'),
+                                        children: [
+                                          Expanded(
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  image: DecorationImage(
+                                                      fit: BoxFit.cover,
+                                                      image: NetworkImage(
+                                                        isExpanded &&
+                                                                imgSelected
+                                                                    .isNotEmpty
+                                                            ? imgSelected
+                                                                .replaceAll(
+                                                                    '../../../api/assets/',
+                                                                    '/')
+                                                            : '${AppConstans.imageUrl}${ruangan.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}',
+                                                      ))),
+                                            ),
                                           ),
-                                        ),
-                                        isExpanded
-                                            ? Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 4),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          ruangan.namaRuangan,
-                                                          style: const TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                        Row(
-                                                          children: [
-                                                            const Icon(
-                                                              Icons.people,
-                                                              // size: 20,
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 3,
-                                                            ),
-                                                            Text(ruangan
-                                                                .kapasitas
-                                                                .toString())
-                                                          ],
-                                                        )
-                                                      ],
-                                                    ),
-                                                    Text(ruangan.namaGedung),
-                                                    const SizedBox(
-                                                      height: 4,
-                                                    ),
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceEvenly,
-                                                      children: ruangan
-                                                          .namaFasilitas!
-                                                          .split(',')
-                                                          .map((fasilitas) {
-                                                        if (fasilitas.isEmpty) {
-                                                          return const SizedBox();
-                                                        }
-                                                        return Row(
-                                                          children: [
-                                                            const Icon(
-                                                              Icons.circle,
-                                                              size: 8,
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 8,
-                                                            ),
-                                                            Text(
-                                                              fasilitas.trim(),
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          16),
-                                                            ),
-                                                          ],
-                                                        );
-                                                      }).toList(),
-                                                    ),
-                                                    const SizedBox(
-                                                      height: 4,
-                                                    ),
-                                                    SizedBox(
-                                                      height: 60,
-                                                      child: ListView.builder(
-                                                        shrinkWrap: true,
-                                                        scrollDirection:
-                                                            Axis.horizontal,
-                                                        itemCount: ruangan
-                                                            .fotoRuangan!
-                                                            .length,
-                                                        itemBuilder:
-                                                            (context, index) {
-                                                          final foto = ruangan
-                                                                  .fotoRuangan![
-                                                              index];
-                                                          final selected =
-                                                              wiRef.watch(
-                                                                  imgSelectedProvider(
-                                                                      index));
-                                                          final imgUrl =
-                                                              '${AppConstans.imageUrl}${foto.replaceAll('../../../api/assets/', '/')}';
-
-                                                          return GestureDetector(
-                                                            onTap: () {
-                                                              setImgSelected(
-                                                                  ref,
-                                                                  index,
-                                                                  imgUrl);
-                                                            },
-                                                            child: Container(
-                                                              margin:
-                                                                  const EdgeInsets
-                                                                      .symmetric(
-                                                                      horizontal:
-                                                                          4),
-                                                              height: 50,
-                                                              width: 50,
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                border:
-                                                                    Border.all(
-                                                                  color: AppColors
-                                                                      .biruMuda,
-                                                                  width: selected ==
-                                                                          imgUrl
-                                                                      ? 2
-                                                                      : 0,
-                                                                ),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            6),
-                                                                image:
-                                                                    DecorationImage(
-                                                                  image:
-                                                                      NetworkImage(
-                                                                          imgUrl),
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                              )
-                                            : roomDefaultInformation(ruangan)
-                                      ],
+                                          isExpanded
+                                              ? roomExpandedInformation(
+                                                  ruangan,
+                                                  wiRef,
+                                                  expandedIndex,
+                                                  imgSelected)
+                                              : roomDefaultInformation(ruangan)
+                                        ],
+                                      ),
                                     ),
                                   )));
                         },
@@ -307,14 +177,120 @@ class _RoomPageState extends ConsumerState<RoomPage> {
     );
   }
 
+  Padding roomExpandedInformation(RuanganModel ruangan, WidgetRef wiRef,
+      int? expandedIndex, String imgSelected) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                ruangan.namaRuangan,
+                overflow: TextOverflow.ellipsis,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.people,
+                    // size: 20,
+                  ),
+                  const SizedBox(
+                    width: 3,
+                  ),
+                  Text(ruangan.kapasitas.toString())
+                ],
+              )
+            ],
+          ),
+          Text(ruangan.namaGedung),
+          const SizedBox(
+            height: 4,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: ruangan.namaFasilitas!.split(',').map((fasilitas) {
+              if (fasilitas.isEmpty) {
+                return const SizedBox();
+              }
+              return Row(
+                children: [
+                  const Icon(
+                    Icons.circle,
+                    size: 8,
+                  ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Text(
+                    fasilitas.trim(),
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+          SizedBox(
+            height: 60,
+            child: ListView.builder(
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemCount: ruangan.fotoRuangan!.length,
+              itemBuilder: (context, index) {
+                final foto = ruangan.fotoRuangan![index];
+                final selected =
+                    wiRef.watch(imgSelectedProvider(expandedIndex));
+                final imgUrl =
+                    '${AppConstans.imageUrl}${foto.replaceAll('../../../api/assets/', '/')}';
+
+                return GestureDetector(
+                  onTap: () {
+                    setImgSelected(ref, expandedIndex, imgUrl);
+                    print(imgSelected);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: AppColors.biruMuda,
+                        width: selected == imgUrl ? 2 : 0,
+                      ),
+                      borderRadius: BorderRadius.circular(6),
+                      image: DecorationImage(
+                        image: NetworkImage(imgUrl),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Row roomDefaultInformation(RuanganModel ruangan) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Text(
           ruangan.namaRuangan,
+          overflow: TextOverflow.ellipsis,
         ),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
               Icons.people,
