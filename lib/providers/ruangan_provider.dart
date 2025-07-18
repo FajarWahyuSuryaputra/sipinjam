@@ -5,6 +5,9 @@ final ruanganStatusProvider = StateProvider.autoDispose((ref) => '');
 final expandedRoomProvider = StateProvider<int?>(
   (ref) => null,
 );
+final imgSelectedProvider = StateProvider.family.autoDispose<String, int>(
+  (ref, index) => '',
+);
 
 setRuanganStatus(WidgetRef ref, String newStatus) {
   ref.read(ruanganStatusProvider.notifier).state = newStatus;
@@ -12,6 +15,10 @@ setRuanganStatus(WidgetRef ref, String newStatus) {
 
 setExpandedRoom(WidgetRef ref, int? newStatus) {
   ref.read(expandedRoomProvider.notifier).state = newStatus;
+}
+
+setImgSelected(WidgetRef ref, int index, String newStatus) {
+  ref.read(imgSelectedProvider(index).notifier).state = newStatus;
 }
 
 final ruanganProvider =

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:sipinjam/config/app_colors.dart';
 import 'package:sipinjam/config/nav.dart';
 import 'package:sipinjam/datasources/ruangan_datasource.dart';
@@ -79,155 +80,252 @@ class _RoomPageState extends ConsumerState<RoomPage> {
         padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [header(context), roomList()],
+          children: [
+            header(context),
+            Expanded(
+              child: Consumer(
+                builder: (_, wiRef, __) {
+                  List<RuanganModel> ruanganList = wiRef.watch(ruanganProvider);
+                  final expandedIndex = wiRef.watch(expandedRoomProvider);
+                  return StaggeredGrid.count(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                      children: List.generate(
+                        ruanganList.length,
+                        (index) {
+                          RuanganModel ruangan = ruanganList[index];
+                          final isExpanded = index == expandedIndex;
+                          final imgSelected =
+                              wiRef.watch(imgSelectedProvider(index));
+                          if (imgSelected.isEmpty &&
+                              ruangan.fotoRuangan!.isNotEmpty) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              setImgSelected(ref, index,
+                                  '${AppConstans.imageUrl}${ruangan.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}');
+                            });
+                          }
+
+                          return StaggeredGridTile.count(
+                              crossAxisCellCount: isExpanded ? 2 : 1,
+                              mainAxisCellCount: isExpanded ? 2 : 1,
+                              child: GestureDetector(
+                                  onTap: () {
+                                    setExpandedRoom(
+                                        ref, isExpanded ? null : index);
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 400),
+                                    curve: Curves.easeInOut,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                image: DecorationImage(
+                                                    fit: BoxFit.cover,
+                                                    image: NetworkImage(
+                                                      // '${AppConstans.imageUrl}${ruangan.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}'
+                                                      isExpanded &&
+                                                              imgSelected
+                                                                  .isNotEmpty
+                                                          ? imgSelected
+                                                          : '${AppConstans.imageUrl}${ruangan.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}',
+                                                    ))),
+                                          ),
+                                        ),
+                                        isExpanded
+                                            ? Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Text(
+                                                          ruangan.namaRuangan,
+                                                          style: const TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            const Icon(
+                                                              Icons.people,
+                                                              // size: 20,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 3,
+                                                            ),
+                                                            Text(ruangan
+                                                                .kapasitas
+                                                                .toString())
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                    Text(ruangan.namaGedung),
+                                                    const SizedBox(
+                                                      height: 4,
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: ruangan
+                                                          .namaFasilitas!
+                                                          .split(',')
+                                                          .map((fasilitas) {
+                                                        if (fasilitas.isEmpty) {
+                                                          return const SizedBox();
+                                                        }
+                                                        return Row(
+                                                          children: [
+                                                            const Icon(
+                                                              Icons.circle,
+                                                              size: 8,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 8,
+                                                            ),
+                                                            Text(
+                                                              fasilitas.trim(),
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          16),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      }).toList(),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 4,
+                                                    ),
+                                                    SizedBox(
+                                                      height: 60,
+                                                      child: ListView.builder(
+                                                        shrinkWrap: true,
+                                                        scrollDirection:
+                                                            Axis.horizontal,
+                                                        itemCount: ruangan
+                                                            .fotoRuangan!
+                                                            .length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          final foto = ruangan
+                                                                  .fotoRuangan![
+                                                              index];
+                                                          final selected =
+                                                              wiRef.watch(
+                                                                  imgSelectedProvider(
+                                                                      index));
+                                                          final imgUrl =
+                                                              '${AppConstans.imageUrl}${foto.replaceAll('../../../api/assets/', '/')}';
+
+                                                          return GestureDetector(
+                                                            onTap: () {
+                                                              setImgSelected(
+                                                                  ref,
+                                                                  index,
+                                                                  imgUrl);
+                                                            },
+                                                            child: Container(
+                                                              margin:
+                                                                  const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          4),
+                                                              height: 50,
+                                                              width: 50,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                border:
+                                                                    Border.all(
+                                                                  color: AppColors
+                                                                      .biruMuda,
+                                                                  width: selected ==
+                                                                          imgUrl
+                                                                      ? 2
+                                                                      : 0,
+                                                                ),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            6),
+                                                                image:
+                                                                    DecorationImage(
+                                                                  image:
+                                                                      NetworkImage(
+                                                                          imgUrl),
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              )
+                                            : roomDefaultInformation(ruangan)
+                                      ],
+                                    ),
+                                  )));
+                        },
+                      ));
+                },
+              ),
+            )
+          ],
         ),
       ),
     );
   }
 
-  Expanded roomList() {
-    return Expanded(child: Consumer(
-      builder: (_, wiRef, __) {
-        List<RuanganModel> ruanganList = wiRef.watch(ruanganProvider);
-        final expandedIndex = wiRef.watch(expandedRoomProvider);
-        if (ruanganList.isEmpty) {
-          return const Center(
-            child: Text('Tidak ada list ruangan'),
-          );
-        }
-
-        return GridView.builder(
-          padding: const EdgeInsets.all(0),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-          ),
-          itemCount: ruanganList.length,
-          itemBuilder: (context, index) {
-            RuanganModel ruangan = ruanganList[index];
-            final isExpanded = index == expandedIndex;
-            return GestureDetector(
-              onTap: () {
-                setExpandedRoom(ref, isExpanded ? null : index);
-                print(isExpanded);
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    )
-                  ],
-                ),
-                // padding: const EdgeInsets.all(8),
-                child: isExpanded
-                    ? expandedRoomList(ruangan)
-                    : defaultRoomList(ruangan),
-              ),
-            );
-          },
-        );
-      },
-    ));
-  }
-
-  Column expandedRoomList(RuanganModel ruangan) {
-    return Column(
+  Row roomDefaultInformation(RuanganModel ruangan) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Expanded(
-          flex: 2,
-          child: Container(
-            decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(12)),
-                image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(ruangan.fotoRuangan != null &&
-                            ruangan.fotoRuangan!.isNotEmpty
-                        ? '${AppConstans.imageUrl}${ruangan.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}'
-                        : ''))),
-          ),
-        ),
-        const SizedBox(
-          height: 2,
-        ),
-        Expanded(
-          flex: 3,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text(
-                ruangan.namaRuangan,
-              ),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.people,
-                    // size: 20,
-                  ),
-                  const SizedBox(
-                    width: 3,
-                  ),
-                  Text(ruangan.kapasitas.toString())
-                ],
-              )
-            ],
-          ),
-        ),
-        const SizedBox(
-          height: 2,
-        ),
-      ],
-    );
-  }
-
-  Column defaultRoomList(RuanganModel ruangan) {
-    return Column(
-      children: [
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(12)),
-                image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(ruangan.fotoRuangan != null &&
-                            ruangan.fotoRuangan!.isNotEmpty
-                        ? '${AppConstans.imageUrl}${ruangan.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}'
-                        : ''))),
-          ),
-        ),
-        const SizedBox(
-          height: 2,
+        Text(
+          ruangan.namaRuangan,
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Text(
-              ruangan.namaRuangan,
+            const Icon(
+              Icons.people,
+              // size: 20,
             ),
-            Row(
-              children: [
-                const Icon(
-                  Icons.people,
-                  // size: 20,
-                ),
-                const SizedBox(
-                  width: 3,
-                ),
-                Text(ruangan.kapasitas.toString())
-              ],
-            )
+            const SizedBox(
+              width: 3,
+            ),
+            Text(ruangan.kapasitas.toString())
           ],
-        ),
-        const SizedBox(
-          height: 2,
-        ),
+        )
       ],
     );
   }
