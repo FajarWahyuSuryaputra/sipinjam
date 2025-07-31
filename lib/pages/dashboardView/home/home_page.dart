@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:sipinjam/config/app_colors.dart';
 import 'package:sipinjam/config/app_constans.dart';
 import 'package:sipinjam/config/app_format.dart';
@@ -16,6 +17,9 @@ import 'package:sipinjam/providers/peminjaman_provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../../config/failure.dart';
+import '../../../datasources/ruangan_datasource.dart';
+import '../../../models/ruangan_model.dart';
+import '../../../providers/ruangan_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -116,9 +120,51 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  getRuangan() {
+    RuanganDatasource.getAllRuangan().then(
+      (value) {
+        value.fold(
+          (failure) {
+            switch (failure.runtimeType) {
+              case ServerFailure _:
+                setRuanganStatus(ref, 'Server Error');
+                break;
+              case NotFoundFailure _:
+                setRuanganStatus(ref, 'Error Not Found');
+                break;
+              case ForbiddenFailure _:
+                setRuanganStatus(ref, 'You don\'t have access');
+                break;
+              case BadRequestFailure _:
+                setRuanganStatus(ref, 'Bad request');
+                break;
+              case UnauthorizedFailure _:
+                setRuanganStatus(ref, 'Unauthorised');
+                break;
+              default:
+                setRuanganStatus(ref, 'Request Error');
+                break;
+            }
+          },
+          (result) {
+            setRuanganStatus(ref, 'Success');
+            List data = result['data'];
+            List<RuanganModel> ruangans = data
+                .map(
+                  (e) => RuanganModel.fromJson(e),
+                )
+                .toList();
+            ref.read(ruanganProvider.notifier).setData(ruangans);
+          },
+        );
+      },
+    );
+  }
+
   refresh() {
     getGedung();
     getPeminjaman();
+    getRuangan();
   }
 
   @override
@@ -360,21 +406,51 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  final SearchController _searchController = SearchController();
   Padding header() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: Container(
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(100)),
-        child: const TextField(
-          decoration: InputDecoration(
-            prefixIcon: Icon(Icons.search),
-            hintText: "Search",
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(100))),
-          ),
-        ),
-      ),
-    );
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        child: Consumer(
+          builder: (_, wiRef, __) {
+            List<RuanganModel> ruangan = wiRef.watch(ruanganProvider);
+            return SearchAnchor(
+              searchController: _searchController,
+              isFullScreen: false,
+              builder: (context, controller) {
+                return SearchBar(
+                  padding: const WidgetStatePropertyAll(
+                      EdgeInsets.symmetric(horizontal: 20)),
+                  controller: controller,
+                  hintText: 'Cari Ruangan ...',
+                  onTap: () => controller.openView(),
+                  onChanged: (_) => controller.openView(),
+                  leading: const Icon(Icons.search),
+                );
+              },
+              suggestionsBuilder: (context, controller) {
+                final search = controller.value.text;
+
+                final result = ruangan.where(
+                  (ruangan) {
+                    return ruangan.namaRuangan.toLowerCase().contains(search);
+                  },
+                ).toList();
+
+                return result.map(
+                  (item) {
+                    return ListTile(
+                      title: Text(item.namaRuangan),
+                      onTap: () {
+                        setState(() {
+                          controller.closeView(item.namaRuangan);
+                        });
+                      },
+                    );
+                  },
+                );
+              },
+            );
+          },
+        ));
   }
 }
