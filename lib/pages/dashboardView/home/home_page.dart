@@ -415,7 +415,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             List<RuanganModel> ruangan = wiRef.watch(ruanganProvider);
             return SearchAnchor(
               searchController: _searchController,
-              isFullScreen: false,
+              viewHintText: 'Cari Ruangan ...',
               builder: (context, controller) {
                 return SearchBar(
                   padding: const WidgetStatePropertyAll(
@@ -438,16 +438,79 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                 return result.map(
                   (item) {
-                    return ListTile(
-                      title: Text(item.namaRuangan),
-                      onTap: () {
-                        setState(() {
-                          controller.closeView(item.namaRuangan);
-                        });
-                      },
+                    return Container(
+                      height: 180,
+                      margin: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+                      decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Color.fromARGB(174, 0, 0, 0),
+                                offset: Offset(2, 2))
+                          ]),
+                      child: ListView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [
+                          Container(
+                            height: 150,
+                            decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.circular(12),
+                                image: item.fotoRuangan!.isNotEmpty
+                                    ? DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(
+                                            '${AppConstans.imageUrl}${item.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}'))
+                                    : null),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(item.namaRuangan),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.people),
+                                    Text(item.kapasitas.toString())
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Row(
+                              children: item.namaFasilitas!
+                                  .split(',')
+                                  .map((fasilitas) {
+                                if (fasilitas.isEmpty) {
+                                  return const SizedBox();
+                                }
+                                return Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.circle,
+                                      size: 8,
+                                    ),
+                                    const SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(
+                                      fasilitas.trim(),
+                                      // style: TextStyle(fontSize: isExpaded ? 16 : 12),
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                          )
+                        ],
+                      ),
                     );
                   },
-                );
+                ).toList();
               },
             );
           },

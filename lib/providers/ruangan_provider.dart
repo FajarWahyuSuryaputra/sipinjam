@@ -32,3 +32,7 @@ class RuanganList extends StateNotifier<List<RuanganModel>> {
     state = newData;
   }
 }
+
+
+// search ruangan provider
+
