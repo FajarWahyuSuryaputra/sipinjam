@@ -33,6 +33,19 @@ class RuanganList extends StateNotifier<List<RuanganModel>> {
   }
 }
 
-
 // search ruangan provider
+final heightContainerProvider = StateProvider.family.autoDispose<double, int>(
+  (ref, index) => 175,
+);
 
+setNewHeight(WidgetRef ref, int index, double newStatus) {
+  ref.read(heightContainerProvider(index).notifier).state = newStatus;
+}
+
+final indexSearchProvider = StateProvider.autoDispose<int?>(
+  (ref) => null,
+);
+
+setIndexSearch(WidgetRef ref, int? idRuangan) {
+  ref.read(indexSearchProvider.notifier).state = idRuangan;
+}

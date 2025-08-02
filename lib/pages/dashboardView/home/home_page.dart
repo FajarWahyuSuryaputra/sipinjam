@@ -423,6 +423,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   controller: controller,
                   hintText: 'Cari Ruangan ...',
                   onTap: () => controller.openView(),
+                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
                   onChanged: (_) => controller.openView(),
                   leading: const Icon(Icons.search),
                 );
@@ -438,76 +439,126 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                 return result.map(
                   (item) {
-                    return Container(
-                      height: 180,
-                      margin: const EdgeInsets.fromLTRB(20, 4, 20, 8),
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Color.fromARGB(174, 0, 0, 0),
-                                offset: Offset(2, 2))
-                          ]),
-                      child: ListView(
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: [
-                          Container(
-                            height: 150,
-                            decoration: BoxDecoration(
-                                color: Colors.grey,
-                                borderRadius: BorderRadius.circular(12),
-                                image: item.fotoRuangan!.isNotEmpty
-                                    ? DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: NetworkImage(
-                                            '${AppConstans.imageUrl}${item.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}'))
-                                    : null),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    return Consumer(
+                      builder: (_, wiRef, __) {
+                        final height = wiRef
+                            .watch(heightContainerProvider(item.idRuangan));
+                        final index = wiRef.watch(indexSearchProvider);
+                        final same = index == item.idRuangan;
+                        return GestureDetector(
+                          onTap: () {
+                            FocusScope.of(context).unfocus();
+                            if (!same) {
+                              setIndexSearch(ref, item.idRuangan);
+                              setNewHeight(ref, item.idRuangan, 250);
+                            } else {
+                              setIndexSearch(ref, null);
+                              setNewHeight(ref, item.idRuangan, 175);
+                            }
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 400),
+                            curve: Curves.easeInOut,
+                            height: height,
+                            margin: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+                            decoration: const BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(12)),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Color.fromARGB(174, 0, 0, 0),
+                                      offset: Offset(2, 2))
+                                ]),
+                            child: ListView(
+                              physics: const NeverScrollableScrollPhysics(),
                               children: [
-                                Text(item.namaRuangan),
-                                Row(
+                                Stack(
                                   children: [
-                                    const Icon(Icons.people),
-                                    Text(item.kapasitas.toString())
+                                    Container(
+                                      height: 150,
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          image: item.fotoRuangan!.isNotEmpty
+                                              ? DecorationImage(
+                                                  fit: BoxFit.cover,
+                                                  image: NetworkImage(
+                                                      '${AppConstans.imageUrl}${item.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}'))
+                                              : null),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.topRight,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: const BoxDecoration(
+                                            color: AppColors.gray,
+                                            borderRadius: BorderRadius.only(
+                                              topRight: Radius.circular(12),
+                                              bottomLeft: Radius.circular(8),
+                                            )),
+                                        child: Text(
+                                          item.namaGedung,
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    )
                                   ],
-                                )
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(item.namaRuangan),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.people),
+                                          Text(item.kapasitas.toString())
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: item.namaFasilitas!
+                                        .split(',')
+                                        .map((fasilitas) {
+                                      if (fasilitas.isEmpty) {
+                                        return const SizedBox();
+                                      }
+                                      return Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.circle,
+                                            size: 8,
+                                          ),
+                                          const SizedBox(
+                                            width: 8,
+                                          ),
+                                          Text(
+                                            fasilitas.trim(),
+                                          ),
+                                        ],
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Row(
-                              children: item.namaFasilitas!
-                                  .split(',')
-                                  .map((fasilitas) {
-                                if (fasilitas.isEmpty) {
-                                  return const SizedBox();
-                                }
-                                return Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.circle,
-                                      size: 8,
-                                    ),
-                                    const SizedBox(
-                                      width: 8,
-                                    ),
-                                    Text(
-                                      fasilitas.trim(),
-                                      // style: TextStyle(fontSize: isExpaded ? 16 : 12),
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
-                          )
-                        ],
-                      ),
+                        );
+                      },
                     );
                   },
                 ).toList();

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:sipinjam/config/app_colors.dart';
+import 'package:sipinjam/config/nav.dart';
 import 'package:sipinjam/datasources/ruangan_datasource.dart';
 import 'package:sipinjam/models/gedung_model.dart';
 import 'package:sipinjam/models/ruangan_model.dart';
+import 'package:sipinjam/pages/dashboardView/home/home_page.dart';
 import 'package:sipinjam/providers/ruangan_provider.dart';
 
 import '../../../config/app_constans.dart';
@@ -140,16 +142,19 @@ class _RoomPageState extends ConsumerState<RoomPage> {
                                       decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(12),
-                                          image: DecorationImage(
-                                              fit: BoxFit.cover,
-                                              image: NetworkImage(
-                                                isExpanded &&
-                                                        imgSelected.isNotEmpty
-                                                    ? imgSelected.replaceAll(
-                                                        '../../../api/assets/',
-                                                        '/')
-                                                    : '${AppConstans.imageUrl}${ruangan.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}',
-                                              ))),
+                                          image: ruangan.fotoRuangan!.isNotEmpty
+                                              ? DecorationImage(
+                                                  fit: BoxFit.cover,
+                                                  image: NetworkImage(
+                                                    isExpanded &&
+                                                            imgSelected
+                                                                .isNotEmpty
+                                                        ? imgSelected.replaceAll(
+                                                            '../../../api/assets/',
+                                                            '/')
+                                                        : '${AppConstans.imageUrl}${ruangan.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}',
+                                                  ))
+                                              : null),
                                     ),
                                   ),
                                   isExpanded
@@ -304,7 +309,7 @@ class _RoomPageState extends ConsumerState<RoomPage> {
   TextButton header(BuildContext context) {
     return TextButton.icon(
         onPressed: () {
-          Navigator.pop(context);
+          Nav.replace(context, const HomePage());
         },
         icon: const Icon(
           Icons.keyboard_backspace_rounded,
