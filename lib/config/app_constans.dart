@@ -4,9 +4,9 @@ import 'package:sipinjam/pages/dashboardView/home/home_page.dart';
 import 'package:sipinjam/pages/dashboardView/profile/account_view.dart';
 
 class AppConstans {
-  static const _host = 'http://192.168.1.7:8000';
+  static const _host = 'http://192.168.1.4:8000';
   // localhost 'http://10.0.2.2/sipinjamfix/sipinjam'
-  // server local 'http://192.168.1.7:8000'
+  // server local 'http://192.168.1.4:8000'
   static const baseUrl = '$_host/api';
   static const imageUrl = '$baseUrl/assets';
 

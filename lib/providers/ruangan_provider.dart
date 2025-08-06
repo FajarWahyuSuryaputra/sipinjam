@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sipinjam/models/ruangan_model.dart';
+import 'package:sipinjam/pages/dashboardView/home/room_page.dart';
 
 final ruanganStatusProvider = StateProvider.autoDispose((ref) => '');
 final expandedRoomProvider = StateProvider<int?>(
@@ -31,6 +33,13 @@ class RuanganList extends StateNotifier<List<RuanganModel>> {
   setData(List<RuanganModel> newData) {
     state = newData;
   }
+}
+
+// ruangan page provider
+final expandedRoomIdProvider = StateProvider<int?>((ref) => null);
+
+void setExpandedRoomId(WidgetRef ref, int? id) {
+  ref.read(expandedRoomIdProvider.notifier).state = id;
 }
 
 // search ruangan provider

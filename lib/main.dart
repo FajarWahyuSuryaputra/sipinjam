@@ -30,8 +30,10 @@ class MainApp extends StatelessWidget {
                     ),
                     padding: WidgetStatePropertyAll(
                         EdgeInsets.symmetric(horizontal: 16, vertical: 14)),
-                    textStyle: WidgetStatePropertyAll(
-                        TextStyle(fontSize: 15, color: Colors.black))))),
+                    textStyle: WidgetStatePropertyAll(TextStyle(
+                        fontSize: 15,
+                        color: Colors.amber,
+                        fontWeight: FontWeight.bold))))),
         home: FutureBuilder(
           future: AppSession.getUser(),
           builder: (context, snapshot) {

@@ -52,13 +52,14 @@ class _RoomPageState extends ConsumerState<RoomPage> {
             List data = result['data'];
             List<RuanganModel> ruangans = data
                 .map(
-              (e) => RuanganModel.fromJson(e),
-            )
-                .where(
-              (element) {
-                return element.idGedung == widget.gedung.idGedung;
-              },
-            ).toList();
+                  (e) => RuanganModel.fromJson(e),
+                )
+                //     .where(
+                //   (element) {
+                //     return element.idGedung == widget.gedung.idGedung;
+                //   },
+                // )
+                .toList();
             ref.read(ruanganProvider.notifier).setData(ruangans);
           },
         );
@@ -80,229 +81,55 @@ class _RoomPageState extends ConsumerState<RoomPage> {
         padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [header(context), roomList()],
-        ),
-      ),
-    );
-  }
+          children: [
+            header(context),
+            Expanded(child: Consumer(
+              builder: (_, wiRef, __) {
+                List<RuanganModel> listRoom = wiRef.watch(ruanganProvider);
 
-  Expanded roomList() {
-    return Expanded(
-      child: Consumer(
-        builder: (_, wiRef, __) {
-          List<RuanganModel> ruanganList = wiRef.watch(ruanganProvider);
-          final expandedIndex = wiRef.watch(expandedRoomProvider);
-          return StaggeredGrid.count(
-              crossAxisCount: 2,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              children: List.generate(
-                ruanganList.length,
-                (index) {
-                  RuanganModel ruangan = ruanganList[index];
-                  final isExpanded = index == expandedIndex;
-                  final imgSelected = wiRef.watch(imgSelectedProvider(index));
-                  if (imgSelected.isEmpty && ruangan.fotoRuangan!.isNotEmpty) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      setImgSelected(ref, index,
-                          '${AppConstans.imageUrl}${ruangan.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}');
-                    });
-                  }
-
-                  return StaggeredGridTile.count(
-                      crossAxisCellCount: isExpanded ? 2 : 1,
-                      mainAxisCellCount: isExpanded ? 2 : 1,
-                      child: GestureDetector(
+                return Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: List.generate(
+                      listRoom.length,
+                      (index) {
+                        RuanganModel room = listRoom[index];
+                        final expandedRoomId =
+                            wiRef.watch(expandedRoomIdProvider);
+                        return GestureDetector(
                           onTap: () {
-                            setExpandedRoom(ref, isExpanded ? null : index);
+                            if (expandedRoomId == room.idRuangan) {
+                              setExpandedRoomId(ref, null); // collapse
+                            } else {
+                              setExpandedRoomId(
+                                  ref, room.idRuangan); // expand this one
+                            }
                           },
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 400),
                             switchInCurve: Curves.easeInOut,
                             switchOutCurve: Curves.easeInOut,
-                            child: Container(
-                              key: ValueKey(isExpanded
-                                  ? 'expanded_$index'
-                                  : 'default_$index'),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 2),
-                                  )
-                                ],
-                              ),
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          image: ruangan.fotoRuangan!.isNotEmpty
-                                              ? DecorationImage(
-                                                  fit: BoxFit.cover,
-                                                  image: NetworkImage(
-                                                    isExpanded &&
-                                                            imgSelected
-                                                                .isNotEmpty
-                                                        ? imgSelected.replaceAll(
-                                                            '../../../api/assets/',
-                                                            '/')
-                                                        : '${AppConstans.imageUrl}${ruangan.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}',
-                                                  ))
-                                              : null),
-                                    ),
-                                  ),
-                                  isExpanded
-                                      ? roomExpandedInformation(
-                                          ruangan,
-                                          wiRef,
-                                          expandedIndex,
-                                          isExpanded,
-                                          imgSelected)
-                                      : roomDefaultInformation(ruangan)
-                                ],
-                              ),
-                            ),
-                          )));
-                },
-              ));
-        },
-      ),
-    );
-  }
-
-  Padding roomExpandedInformation(RuanganModel ruangan, WidgetRef wiRef,
-      int? expandedIndex, bool isExpaded, String imgSelected) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                ruangan.namaRuangan,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    fontSize: isExpaded ? 18 : 12, fontWeight: FontWeight.bold),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.people,
-                  ),
-                  Text(
-                    ruangan.kapasitas.toString(),
-                    overflow: TextOverflow.ellipsis,
-                  )
-                ],
-              )
-            ],
-          ),
-          Text(
-            ruangan.namaGedung,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(
-            height: 2,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: ruangan.namaFasilitas!.split(',').map((fasilitas) {
-              if (fasilitas.isEmpty) {
-                return const SizedBox();
-              }
-              return Row(
-                children: [
-                  const Icon(
-                    Icons.circle,
-                    size: 8,
-                  ),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Text(
-                    fasilitas.trim(),
-                    style: TextStyle(fontSize: isExpaded ? 16 : 12),
-                  ),
-                ],
-              );
-            }).toList(),
-          ),
-          const SizedBox(
-            height: 2,
-          ),
-          SizedBox(
-            height: 60,
-            child: ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemCount: ruangan.fotoRuangan!.length,
-              itemBuilder: (context, index) {
-                final foto = ruangan.fotoRuangan![index];
-                final selected =
-                    wiRef.watch(imgSelectedProvider(expandedIndex));
-                final imgUrl =
-                    '${AppConstans.imageUrl}${foto.replaceAll('../../../api/assets/', '/')}';
-
-                return GestureDetector(
-                  onTap: () {
-                    setImgSelected(ref, expandedIndex, imgUrl);
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: AppColors.biruMuda,
-                        width: selected == imgUrl ? 2 : 0,
-                      ),
-                      borderRadius: BorderRadius.circular(6),
-                      image: DecorationImage(
-                        image: NetworkImage(imgUrl),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                );
+                            transitionBuilder: (child, animation) {
+                              return ScaleTransition(
+                                scale: animation,
+                                child: FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: expandedRoomId == room.idRuangan
+                                ? expandRoomItem(room, context)
+                                : defaultRoomItem(room, context),
+                          ),
+                        );
+                      },
+                    ));
               },
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Row roomDefaultInformation(RuanganModel ruangan) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Text(
-          ruangan.namaRuangan,
-          overflow: TextOverflow.ellipsis,
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.people,
-              // size: 20,
-            ),
-            const SizedBox(
-              width: 3,
-            ),
-            Text(ruangan.kapasitas.toString())
+            ))
           ],
-        )
-      ],
+        ),
+      ),
     );
   }
 
@@ -321,4 +148,156 @@ class _RoomPageState extends ConsumerState<RoomPage> {
           style: const TextStyle(color: Colors.black, fontSize: 18),
         ));
   }
+}
+
+Widget expandRoomItem(RuanganModel room, BuildContext context) {
+  return Container(
+    key: const ValueKey('expanded'),
+    width: MediaQuery.sizeOf(context).width,
+    decoration: BoxDecoration(
+        color: AppColors.gray, borderRadius: BorderRadius.circular(12)),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: MediaQuery.sizeOf(context).height * 0.2,
+          decoration: BoxDecoration(
+              image: room.fotoRuangan!.isNotEmpty
+                  ? DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(
+                          '${AppConstans.imageUrl}${room.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}'))
+                  : null,
+              color: room.fotoRuangan!.isNotEmpty ? null : Colors.grey,
+              borderRadius: BorderRadius.circular(12)),
+          child: Center(
+            child: Icon(room.fotoRuangan!.isNotEmpty ? null : Icons.warning),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(room.namaRuangan),
+              Row(
+                children: [
+                  const Icon(Icons.people),
+                  Text(room.kapasitas.toString())
+                ],
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Container(
+            height: 2,
+            decoration: BoxDecoration(
+                color: Colors.grey, borderRadius: BorderRadius.circular(2)),
+          ),
+        ),
+        if (room.namaFasilitas!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+            child: Text('Fasilitas Ruangan: ${room.namaFasilitas}'),
+          ),
+        if (room.fotoRuangan!.isNotEmpty)
+          SizedBox(
+            height: 60,
+            child: ListView.builder(
+              padding: const EdgeInsets.all(4),
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemCount: room.fotoRuangan!.length,
+              itemBuilder: (context, index) {
+                final foto = room.fotoRuangan![index];
+                // final selected =
+                //     wiRef.watch(imgSelectedProvider(expandedIndex));
+                final imgUrl =
+                    '${AppConstans.imageUrl}${foto.replaceAll('../../../api/assets/', '/')}';
+
+                return GestureDetector(
+                  onTap: () {
+                    // setImgSelected(ref, expandedIndex, imgUrl);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: AppColors.biruMuda,
+                        // width: selected == imgUrl ? 2 : 0,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(6),
+                      image: DecorationImage(
+                        image: NetworkImage(imgUrl),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        Container(
+          width: MediaQuery.sizeOf(context).width,
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+          child: ElevatedButton(
+              style: const ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.amber),
+                  textStyle:
+                      WidgetStatePropertyAll(TextStyle(color: Colors.black))),
+              onPressed: () {},
+              child: const Text('Pinjam Ruangan')),
+        )
+      ],
+    ),
+  );
+}
+
+Widget defaultRoomItem(RuanganModel room, BuildContext context) {
+  return Container(
+    key: const ValueKey('default'),
+    height: MediaQuery.sizeOf(context).height * 0.25,
+    width: MediaQuery.sizeOf(context).width * 0.435,
+    decoration: BoxDecoration(
+        color: AppColors.gray, borderRadius: BorderRadius.circular(12)),
+    child: Column(
+      children: [
+        Container(
+          height: MediaQuery.sizeOf(context).height * 0.2,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              image: room.fotoRuangan!.isNotEmpty
+                  ? DecorationImage(
+                      image: NetworkImage(
+                          '${AppConstans.imageUrl}${room.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}'),
+                      fit: BoxFit.cover)
+                  : null,
+              color: room.fotoRuangan!.isNotEmpty ? null : Colors.grey),
+          child: Center(
+            child: Icon(room.fotoRuangan!.isEmpty ? Icons.warning : null),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(room.namaRuangan),
+              Row(
+                children: [
+                  const Icon(Icons.people),
+                  Text(room.kapasitas.toString())
+                ],
+              )
+            ],
+          ),
+        )
+      ],
+    ),
+  );
 }
