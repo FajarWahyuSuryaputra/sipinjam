@@ -4,23 +4,9 @@ import 'package:sipinjam/models/ruangan_model.dart';
 import 'package:sipinjam/pages/dashboardView/home/room_page.dart';
 
 final ruanganStatusProvider = StateProvider.autoDispose((ref) => '');
-final expandedRoomProvider = StateProvider<int?>(
-  (ref) => null,
-);
-final imgSelectedProvider = StateProvider.family.autoDispose<String, int?>(
-  (ref, index) => '',
-);
 
 setRuanganStatus(WidgetRef ref, String newStatus) {
   ref.read(ruanganStatusProvider.notifier).state = newStatus;
-}
-
-setExpandedRoom(WidgetRef ref, int? newStatus) {
-  ref.read(expandedRoomProvider.notifier).state = newStatus;
-}
-
-setImgSelected(WidgetRef ref, int? index, String newStatus) {
-  ref.read(imgSelectedProvider(index).notifier).state = newStatus;
 }
 
 final ruanganProvider =
@@ -41,6 +27,18 @@ final expandedRoomIdProvider = StateProvider<int?>((ref) => null);
 void setExpandedRoomId(WidgetRef ref, int? id) {
   ref.read(expandedRoomIdProvider.notifier).state = id;
 }
+
+final imgSelectedProvider = StateProvider.family.autoDispose<String, int?>(
+  (ref, index) => '',
+);
+
+setImgSelected(WidgetRef ref, int? index, String newStatus) {
+  ref.read(imgSelectedProvider(index).notifier).state = newStatus;
+}
+
+// final widgetRoomItem = StateProvider.autoDispose<Widget>(
+
+// );
 
 // search ruangan provider
 final heightContainerProvider = StateProvider.family.autoDispose<double, int>(

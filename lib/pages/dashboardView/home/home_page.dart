@@ -13,6 +13,7 @@ import 'package:sipinjam/models/peminjaman_model.dart';
 import 'package:sipinjam/pages/dashboardView/home/room_page.dart';
 import 'package:sipinjam/providers/gedung_provider.dart';
 import 'package:sipinjam/providers/peminjaman_provider.dart';
+import 'package:sipinjam/widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../../config/failure.dart';
@@ -440,120 +441,38 @@ class _HomePageState extends ConsumerState<HomePage> {
                   (item) {
                     return Consumer(
                       builder: (_, wiRef, __) {
-                        final height = wiRef
-                            .watch(heightContainerProvider(item.idRuangan));
-                        final index = wiRef.watch(indexSearchProvider);
-                        final same = index == item.idRuangan;
+                        RuanganModel room = item;
+                        final expandedRoomId =
+                            wiRef.watch(expandedRoomIdProvider);
                         return GestureDetector(
                           onTap: () {
-                            FocusScope.of(context).unfocus();
-                            if (!same) {
-                              setIndexSearch(ref, item.idRuangan);
-                              setNewHeight(ref, item.idRuangan, 250);
+                            print(room.idRuangan);
+                            if (expandedRoomId == room.idRuangan) {
+                              setExpandedRoomId(ref, null); // collapse
                             } else {
-                              setIndexSearch(ref, null);
-                              setNewHeight(ref, item.idRuangan, 175);
+                              setExpandedRoomId(
+                                  ref, room.idRuangan); // expand this one
                             }
                           },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 400),
-                            curve: Curves.easeInOut,
-                            height: height,
-                            margin: const EdgeInsets.fromLTRB(20, 4, 20, 8),
-                            decoration: const BoxDecoration(
-                                color: Colors.white,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12)),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Color.fromARGB(174, 0, 0, 0),
-                                      offset: Offset(2, 2))
-                                ]),
-                            child: ListView(
-                              physics: const NeverScrollableScrollPhysics(),
-                              children: [
-                                Stack(
-                                  children: [
-                                    Container(
-                                      height: 150,
-                                      decoration: BoxDecoration(
-                                          color: Colors.grey,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          image: item.fotoRuangan!.isNotEmpty
-                                              ? DecorationImage(
-                                                  fit: BoxFit.cover,
-                                                  image: NetworkImage(
-                                                      '${AppConstans.imageUrl}${item.fotoRuangan!.first.replaceAll('../../../api/assets/', '/')}'))
-                                              : null),
-                                    ),
-                                    Align(
-                                      alignment: Alignment.topRight,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(6),
-                                        decoration: const BoxDecoration(
-                                            color: AppColors.gray,
-                                            borderRadius: BorderRadius.only(
-                                              topRight: Radius.circular(12),
-                                              bottomLeft: Radius.circular(8),
-                                            )),
-                                        child: Text(
-                                          item.namaGedung,
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(item.namaRuangan),
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.people),
-                                          Text(item.kapasitas.toString())
-                                        ],
-                                      )
-                                    ],
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 400),
+                              switchInCurve: Curves.easeInOut,
+                              switchOutCurve: Curves.easeInOut,
+                              transitionBuilder: (child, animation) {
+                                return SizeTransition(
+                                  sizeFactor: animation,
+                                  axisAlignment: 0,
+                                  child: FadeTransition(
+                                    opacity: animation,
+                                    child: child,
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: item.namaFasilitas!
-                                        .split(',')
-                                        .map((fasilitas) {
-                                      if (fasilitas.isEmpty) {
-                                        return const SizedBox();
-                                      }
-                                      return Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.circle,
-                                            size: 8,
-                                          ),
-                                          const SizedBox(
-                                            width: 8,
-                                          ),
-                                          Text(
-                                            fasilitas.trim(),
-                                          ),
-                                        ],
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ],
+                                );
+                              },
+                              child: expandedRoomId == room.idRuangan
+                                  ? expandRoomItem(room, context, wiRef)
+                                  : defaultRoomItem(room, 1, context),
                             ),
                           ),
                         );
