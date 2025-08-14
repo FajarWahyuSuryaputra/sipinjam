@@ -446,7 +446,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                             wiRef.watch(expandedRoomIdProvider);
                         return GestureDetector(
                           onTap: () {
-                            print(room.idRuangan);
                             if (expandedRoomId == room.idRuangan) {
                               setExpandedRoomId(ref, null); // collapse
                             } else {

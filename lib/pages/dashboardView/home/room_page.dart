@@ -4,7 +4,7 @@ import 'package:sipinjam/config/nav.dart';
 import 'package:sipinjam/datasources/ruangan_datasource.dart';
 import 'package:sipinjam/models/gedung_model.dart';
 import 'package:sipinjam/models/ruangan_model.dart';
-import 'package:sipinjam/pages/dashboardView/home/home_page.dart';
+import 'package:sipinjam/pages/dashboard.dart';
 import 'package:sipinjam/providers/ruangan_provider.dart';
 
 import '../../../config/failure.dart';
@@ -50,14 +50,13 @@ class _RoomPageState extends ConsumerState<RoomPage> {
             List data = result['data'];
             List<RuanganModel> ruangans = data
                 .map(
-                  (e) => RuanganModel.fromJson(e),
-                )
-                //     .where(
-                //   (element) {
-                //     return element.idGedung == widget.gedung.idGedung;
-                //   },
-                // )
-                .toList();
+              (e) => RuanganModel.fromJson(e),
+            )
+                .where(
+              (element) {
+                return element.idGedung == widget.gedung.idGedung;
+              },
+            ).toList();
             ref.read(ruanganProvider.notifier).setData(ruangans);
           },
         );
@@ -132,7 +131,7 @@ class _RoomPageState extends ConsumerState<RoomPage> {
   TextButton header(BuildContext context) {
     return TextButton.icon(
         onPressed: () {
-          Nav.replace(context, const HomePage());
+          Nav.replace(context, const Dashboard());
         },
         icon: const Icon(
           Icons.keyboard_backspace_rounded,
