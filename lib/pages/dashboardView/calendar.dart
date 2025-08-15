@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sipinjam/config/app_colors.dart';
 import 'package:sipinjam/providers/calendar_provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import '../../config/failure.dart';
 import '../../datasources/gedung_datasourcce.dart';
+import '../../datasources/peminjaman_datasource.dart';
 import '../../datasources/ruangan_datasource.dart';
 import '../../models/gedung_model.dart';
+import '../../models/peminjaman_model.dart';
 import '../../models/ruangan_model.dart';
 import '../../providers/gedung_provider.dart';
+import '../../providers/peminjaman_provider.dart';
 import '../../providers/ruangan_provider.dart';
 
 class Calendar extends ConsumerStatefulWidget {
@@ -101,9 +105,55 @@ class _CalendarState extends ConsumerState<Calendar> {
     );
   }
 
+  getPeminjamanByRoomName(String roomName) {
+    PeminjamanDatasource.getAllPeminjaman().then(
+      (value) {
+        value.fold(
+          (failure) {
+            switch (failure.runtimeType) {
+              case ServerFailure _:
+                setPeminjamanStatus(ref, 'Server Error');
+                break;
+              case NotFoundFailure _:
+                setPeminjamanStatus(ref, 'Error Not Found');
+                break;
+              case ForbiddenFailure _:
+                setPeminjamanStatus(ref, 'You don\'t have access');
+                break;
+              case BadRequestFailure _:
+                setPeminjamanStatus(ref, 'Bad request');
+                break;
+              case UnauthorizedFailure _:
+                setPeminjamanStatus(ref, 'Unauthorised');
+                break;
+              default:
+                setPeminjamanStatus(ref, 'Request Error');
+                break;
+            }
+          },
+          (result) {
+            setPeminjamanStatus(ref, "Success");
+            List data = result['data'];
+            List<PeminjamanModel> peminjaman = data
+                .map(
+              (e) => PeminjamanModel.fromJson(e),
+            )
+                .where(
+              (element) {
+                return (element.namaRuangan == roomName) &&
+                    (element.namaStatus != 'proses') &&
+                    (element.namaStatus != 'ditolak');
+              },
+            ).toList();
+            ref.read(peminjamanProvider.notifier).setData(peminjaman);
+          },
+        );
+      },
+    );
+  }
+
   refresh() {
     getGedung();
-    // getPeminjaman();
     getRuangan();
   }
 
@@ -137,8 +187,8 @@ class _CalendarState extends ConsumerState<Calendar> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: SingleChildScrollView(
+              child: Column(
             children: [
               const Text(
                 'CALENDAR',
@@ -147,110 +197,221 @@ class _CalendarState extends ConsumerState<Calendar> {
               const SizedBox(
                 height: 8,
               ),
+              pilihRuangan(context),
+              const SizedBox(
+                height: 8,
+              ),
               Material(
                 elevation: 3,
                 borderRadius: BorderRadius.circular(12),
-                child: Consumer(
-                  builder: (_, wiRef, __) {
-                    final gedungEntries = wiRef.watch(gedungProvider);
-                    final gedungSelected = wiRef.watch(gedungCalendarProvider);
-                    final ruanganEntries = wiRef.watch(ruanganProvider);
-                    final ruanganSelected =
-                        wiRef.watch(ruanganCalendarProvider);
-                    gedungController.text = gedungSelected?.namaGedung ?? '';
-                    ruanganController.text = ruanganSelected?.namaRuangan ?? '';
-                    return Container(
-                      padding: const EdgeInsets.all(8),
-                      width: MediaQuery.sizeOf(context).width,
-                      decoration: BoxDecoration(
-                          color: AppColors.gray,
-                          borderRadius: BorderRadius.circular(12)),
-                      child: Column(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: DropdownMenu(
-                              controller: gedungController,
-                              hintText: 'Cari Gedung',
-                              focusNode: gedungFilterNode,
-                              enableFilter: true,
-                              width: double.infinity,
-                              dropdownMenuEntries: gedungEntries.isNotEmpty
-                                  ? gedungEntries.map(
-                                      (gedung) {
-                                        return DropdownMenuEntry(
-                                            value: gedung,
-                                            label: gedung.namaGedung);
-                                      },
-                                    ).toList()
-                                  : [
-                                      const DropdownMenuEntry(
-                                          value: null, label: '')
-                                    ],
-                              onSelected: (value) {
-                                setGedungCalendar(ref, value);
-                                FocusScope.of(context).unfocus();
-                              },
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 8,
-                          ),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: DropdownMenu(
-                              controller: ruanganController,
-                              hintText: 'Cari Ruangan',
-                              focusNode: ruanganFilterNode,
-                              errorText: gedungSelected != null
-                                  ? null
-                                  : 'Pilih gedung terlebih dahulu',
-                              enabled: gedungSelected != null ? true : false,
-                              enableFilter: true,
-                              width: double.infinity,
-                              dropdownMenuEntries: gedungEntries.isNotEmpty
-                                  ? ruanganEntries
-                                      .where((element) =>
-                                          element.idGedung ==
-                                          gedungSelected?.idGedung)
-                                      .map(
-                                      (ruangan) {
-                                        return DropdownMenuEntry(
-                                            value: ruangan,
-                                            label: ruangan.namaRuangan);
-                                      },
-                                    ).toList()
-                                  : [
-                                      const DropdownMenuEntry(
-                                          value: null, label: '')
-                                    ],
-                              onSelected: (value) {
-                                setRuanganCalendar(ref, value);
-                                FocusScope.of(context).unfocus();
-                              },
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 8,
-                          ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                                onPressed: () {},
-                                child: const Text(
-                                  'Lihat Jadwal',
-                                  style: TextStyle(color: Colors.white),
-                                )),
-                          )
-                        ],
-                      ),
-                    );
-                  },
+                child: Container(
+                  width: MediaQuery.sizeOf(context).width,
+                  decoration: BoxDecoration(
+                      color: AppColors.gray,
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Consumer(
+                    builder: (_, wiRef, __) {
+                      final peminjamanList = wiRef.watch(peminjamanProvider);
+                      return TableCalendar(
+                        availableGestures: AvailableGestures.none,
+                        focusedDay: DateTime.now(),
+                        firstDay: DateTime.utc(1978),
+                        lastDay: DateTime.utc(9999),
+                        headerStyle: const HeaderStyle(
+                            formatButtonVisible: false, titleCentered: true),
+                        calendarBuilders: CalendarBuilders(
+                          defaultBuilder: (context, date, _) {
+                            final hasEvent = peminjamanList.any((event) =>
+                                event.tglPeminjaman.year == date.year &&
+                                event.tglPeminjaman.month == date.month &&
+                                event.tglPeminjaman.day == date.day);
+
+                            if (hasEvent) {
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.amber,
+                                  shape: BoxShape.circle,
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  date.day.toString(),
+                                  style: const TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              );
+                            }
+
+                            // Default tampilan kalau tidak ada event
+                            return Center(
+                              child: Text(date.day.toString()),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              information(context),
+              const SizedBox(
+                height: 8,
               )
             ],
+          )),
+        ),
+      ),
+    );
+  }
+
+  Material information(BuildContext context) {
+    return Material(
+      elevation: 3,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: MediaQuery.sizeOf(context).width,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+            color: AppColors.gray, borderRadius: BorderRadius.circular(12)),
+        child: Column(
+          children: List.generate(
+            3,
+            (index) {
+              List<Color> colorInfo = [
+                Colors.amber,
+                Colors.orange,
+                Colors.red,
+              ];
+              List<String> textInfo = [
+                'Sesi Pagi',
+                'Sesi Siang',
+                'Sesi Sudah Penuh',
+              ];
+              return Container(
+                width: double.infinity,
+                height: 50,
+                margin: EdgeInsets.only(bottom: index != 2 ? 4 : 0),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: colorInfo[index]),
+                child: Center(
+                  child: Text(
+                    textInfo[index],
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                ),
+              );
+            },
           ),
         ),
+      ),
+    );
+  }
+
+  Material pilihRuangan(BuildContext context) {
+    return Material(
+      elevation: 3,
+      borderRadius: BorderRadius.circular(12),
+      child: Consumer(
+        builder: (_, wiRef, __) {
+          final gedungEntries = wiRef.watch(gedungProvider);
+          final gedungSelected = wiRef.watch(gedungCalendarProvider);
+          final ruanganEntries = wiRef.watch(ruanganProvider);
+          final ruanganSelected = wiRef.watch(ruanganCalendarProvider);
+          gedungController.text = gedungSelected?.namaGedung ?? '';
+          ruanganController.text = ruanganSelected?.namaRuangan ?? '';
+          return Container(
+            padding: const EdgeInsets.all(8),
+            width: MediaQuery.sizeOf(context).width,
+            decoration: BoxDecoration(
+                color: AppColors.gray, borderRadius: BorderRadius.circular(12)),
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: DropdownMenu(
+                    controller: gedungController,
+                    hintText: 'Cari Gedung',
+                    focusNode: gedungFilterNode,
+                    enableFilter: true,
+                    width: double.infinity,
+                    dropdownMenuEntries: gedungEntries.isNotEmpty
+                        ? gedungEntries.map(
+                            (gedung) {
+                              return DropdownMenuEntry(
+                                  value: gedung, label: gedung.namaGedung);
+                            },
+                          ).toList()
+                        : [const DropdownMenuEntry(value: null, label: '')],
+                    onSelected: (value) {
+                      setGedungCalendar(wiRef, value);
+                      FocusScope.of(context).unfocus();
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: DropdownMenu(
+                    controller: ruanganController,
+                    hintText: 'Cari Ruangan',
+                    focusNode: ruanganFilterNode,
+                    errorText: gedungSelected != null
+                        ? null
+                        : 'Pilih gedung terlebih dahulu',
+                    enabled: gedungSelected != null ? true : false,
+                    enableFilter: true,
+                    width: double.infinity,
+                    dropdownMenuEntries: gedungEntries.isNotEmpty
+                        ? ruanganEntries
+                            .where((element) =>
+                                element.idGedung == gedungSelected?.idGedung)
+                            .map(
+                            (ruangan) {
+                              return DropdownMenuEntry(
+                                  value: ruangan, label: ruangan.namaRuangan);
+                            },
+                          ).toList()
+                        : [const DropdownMenuEntry(value: null, label: '')],
+                    onSelected: (value) {
+                      setRuanganCalendar(wiRef, value);
+                      FocusScope.of(context).unfocus();
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                      onPressed: () {
+                        print('ini ditekan');
+                        print(
+                            'ruanganSelected: ${ruanganSelected?.namaRuangan}');
+                        if (ruanganSelected != null) {
+                          getPeminjamanByRoomName(ruanganSelected.namaRuangan);
+                        } else {
+                          print('Ruangan belum dipilih!');
+                        }
+                      },
+                      child: const Text(
+                        'Lihat Jadwal',
+                        style: TextStyle(color: Colors.white),
+                      )),
+                )
+              ],
+            ),
+          );
+        },
       ),
     );
   }

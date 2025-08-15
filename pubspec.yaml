@@ -20,6 +20,7 @@ dependencies:
   intl: ^0.20.2
   shared_preferences: ^2.5.3
   smooth_page_indicator: ^1.2.1
+  table_calendar: ^3.2.0
 
 dev_dependencies:
   flutter_test:
