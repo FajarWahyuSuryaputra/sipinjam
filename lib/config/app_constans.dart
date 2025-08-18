@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sipinjam/pages/dashboardView/calendar.dart';
 import 'package:sipinjam/pages/dashboardView/history.dart';
 import 'package:sipinjam/pages/dashboardView/home/home_page.dart';
+import 'package:sipinjam/pages/dashboardView/peminjaman_page.dart';
 import 'package:sipinjam/pages/dashboardView/profile/account_view.dart';
 
 class AppConstans {
@@ -23,7 +24,7 @@ class AppConstans {
       'label': 'History',
     },
     {
-      'view': const Text('Peminjaman'),
+      'view': const PeminjamanPage(),
       'icon': Icons.article,
       'label': 'Peminjaman',
     },
