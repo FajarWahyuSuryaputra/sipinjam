@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:sipinjam/config/app_colors.dart';
 import 'package:sipinjam/config/app_session.dart';
 import 'package:sipinjam/datasources/kegiatan_datasource.dart';
@@ -18,6 +19,7 @@ class PeminjamanPage extends ConsumerStatefulWidget {
 
 class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
   late PeminjamModel peminjam;
+
   getKegiatan() {
     KegiatanDatasource.getAllKegiatan().then(
       (value) {
@@ -63,6 +65,9 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
     );
   }
 
+  late TextEditingController kegiatanController;
+  late FocusNode kegiatanNode;
+
   @override
   void initState() {
     super.initState();
@@ -72,6 +77,15 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
         getKegiatan();
       },
     );
+    kegiatanController = TextEditingController();
+    kegiatanNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    kegiatanController.dispose();
+    kegiatanNode.dispose();
   }
 
   @override
@@ -88,50 +102,172 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
                 'Peminjaman',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
+              const SizedBox(
+                height: 8,
+              ),
+              kegiatanCard(context),
+              const SizedBox(
+                height: 8,
+              ),
               Container(
-                padding: const EdgeInsets.all(8),
                 width: MediaQuery.sizeOf(context).width,
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    color: AppColors.gray),
+                    color: AppColors.gray,
+                    boxShadow: const [
+                      BoxShadow(
+                          color: Color.fromARGB(255, 61, 61, 61),
+                          offset: Offset(2, 2),
+                          blurRadius: 2)
+                    ]),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Kegiatan',
+                      'Ruangan',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           color: AppColors.biruTua),
                     ),
                     const SizedBox(
+                      height: 2,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(left: 8),
+                      decoration: BoxDecoration(
+                          color: AppColors.putih,
+                          border: Border.all(),
+                          borderRadius: BorderRadius.circular(8)),
+                      child: DropdownMenu(
+                        hintText: 'Pilih Ruangan',
+                        enableFilter: true,
+                        // controller: kegiatanController,
+                        // focusNode: kegiatanNode,
+                        width: double.infinity,
+                        inputDecorationTheme: const InputDecorationTheme(
+                            border: InputBorder.none),
+                        dropdownMenuEntries: const [],
+                        onSelected: (value) {
+                          // setKegiatanSelected(wiRef, value);
+                          // FocusScope.of(context).unfocus();
+                        },
+                      ),
+                    ),
+                    const SizedBox(
                       height: 4,
+                    ),
+                    const Text(
+                      'Tanggal Peminjaman',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: AppColors.biruTua),
+                    ),
+                    const SizedBox(
+                      height: 2,
+                    ),
+                    Container(
+                        padding: const EdgeInsets.only(left: 8),
+                        decoration: BoxDecoration(
+                            color: AppColors.putih,
+                            border: Border.all(),
+                            borderRadius: BorderRadius.circular(8)),
+                        child: TextField(
+                          readOnly: true,
+                          textAlignVertical: const TextAlignVertical(y: 0),
+                          decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'Pilih Tanggal Pinjam',
+                              suffixIcon: IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(
+                                    Icons.calendar_month_outlined,
+                                    color: AppColors.biruTua,
+                                  ))),
+                        )),
+                    const SizedBox(
+                      height: 4,
+                    ),
+                    const Text(
+                      'Sesi Peminjaman',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: AppColors.biruTua),
+                    ),
+                    const SizedBox(
+                      height: 2,
                     ),
                     Consumer(
                       builder: (_, wiRef, __) {
-                        final kegiatanEntry = wiRef.watch(kegiatanProvider);
-                        return Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(),
-                              borderRadius: BorderRadius.circular(8)),
-                          child: DropdownMenu(
-                              width: double.infinity,
-                              inputDecorationTheme: const InputDecorationTheme(
-                                  border: InputBorder.none),
-                              dropdownMenuEntries: kegiatanEntry.isNotEmpty
-                                  ? kegiatanEntry.map(
-                                      (kegiatan) {
-                                        return DropdownMenuEntry(
-                                            value: kegiatan,
-                                            label: kegiatan.namaKegiatan);
-                                      },
-                                    ).toList()
-                                  : [
-                                      const DropdownMenuEntry(
-                                          value: null, label: '')
-                                    ]),
-                        );
+                        return SizedBox(
+                            width: double.infinity,
+                            child: StaggeredGrid.count(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 2,
+                              crossAxisSpacing: 2,
+                              children: [
+                                StaggeredGridTile.count(
+                                  crossAxisCellCount: 1,
+                                  mainAxisCellCount: .4,
+                                  child: Container(
+                                      decoration: BoxDecoration(
+                                          color: AppColors.putih,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all()),
+                                      child: const Center(
+                                        child: Text(
+                                          'Sesi Pagi',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      )),
+                                ),
+                                StaggeredGridTile.count(
+                                  crossAxisCellCount: 1,
+                                  mainAxisCellCount: .4,
+                                  child: Container(
+                                      decoration: BoxDecoration(
+                                          color: AppColors.putih,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all()),
+                                      child: const Center(
+                                        child: Text(
+                                          'Sesi Siang',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      )),
+                                ),
+                                StaggeredGridTile.count(
+                                  crossAxisCellCount: 2,
+                                  mainAxisCellCount: .4,
+                                  child: Container(
+                                      decoration: BoxDecoration(
+                                          color: AppColors.putih,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all()),
+                                      child: const Center(
+                                        child: Text(
+                                          'Full Sesi',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      )),
+                                ),
+                              ],
+                            ));
                       },
                     )
                   ],
@@ -141,6 +277,72 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
           ),
         ),
       )),
+    );
+  }
+
+  Container kegiatanCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      width: MediaQuery.sizeOf(context).width,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: AppColors.gray,
+          boxShadow: const [
+            BoxShadow(
+                color: Color.fromARGB(255, 61, 61, 61),
+                offset: Offset(2, 2),
+                blurRadius: 2)
+          ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Kegiatan',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppColors.biruTua),
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+          Consumer(
+            builder: (_, wiRef, __) {
+              final kegiatanEntry = wiRef.watch(kegiatanProvider);
+              final kegiatanSelect = wiRef.watch(kegiatanSelected);
+              kegiatanController.text = kegiatanSelect?.namaKegiatan ?? '';
+              return Container(
+                padding: const EdgeInsets.only(left: 8),
+                decoration: BoxDecoration(
+                    color: AppColors.putih,
+                    border: Border.all(),
+                    borderRadius: BorderRadius.circular(8)),
+                child: DropdownMenu(
+                  hintText: 'Pilih Kegiatan',
+                  enableFilter: true,
+                  controller: kegiatanController,
+                  focusNode: kegiatanNode,
+                  width: double.infinity,
+                  inputDecorationTheme:
+                      const InputDecorationTheme(border: InputBorder.none),
+                  dropdownMenuEntries: kegiatanEntry.isNotEmpty
+                      ? kegiatanEntry.map(
+                          (kegiatan) {
+                            return DropdownMenuEntry(
+                                value: kegiatan, label: kegiatan.namaKegiatan);
+                          },
+                        ).toList()
+                      : [const DropdownMenuEntry(value: null, label: '')],
+                  onSelected: (value) {
+                    setKegiatanSelected(wiRef, value);
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+              );
+            },
+          )
+        ],
+      ),
     );
   }
 }

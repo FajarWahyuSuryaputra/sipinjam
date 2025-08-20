@@ -21,3 +21,11 @@ class KegiatanList extends StateNotifier<List<KegiatanModel>> {
     state = newData;
   }
 }
+
+final kegiatanSelected = StateProvider.autoDispose<KegiatanModel?>(
+  (ref) => null,
+);
+
+setKegiatanSelected(WidgetRef wiRef, KegiatanModel? kegiatan) {
+  wiRef.read(kegiatanSelected.notifier).state = kegiatan;
+}
