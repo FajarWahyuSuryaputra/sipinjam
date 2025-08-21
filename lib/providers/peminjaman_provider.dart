@@ -30,3 +30,12 @@ final sesiSelectedProvider = StateProvider.autoDispose<int?>(
 setSesiSelected(WidgetRef ref, int? newSesi) {
   ref.read(sesiSelectedProvider.notifier).state = newSesi;
 }
+
+// post peminjaman
+final postPeminjamanProvider = StateProvider.autoDispose(
+  (ref) => '',
+);
+
+setPostPeminjaman(WidgetRef ref, String newStatus) {
+  ref.read(postPeminjamanProvider.notifier).state = newStatus;
+}

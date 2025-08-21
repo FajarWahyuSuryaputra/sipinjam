@@ -5,8 +5,10 @@ import 'package:sipinjam/config/app_colors.dart';
 import 'package:sipinjam/config/app_format.dart';
 import 'package:sipinjam/config/app_session.dart';
 import 'package:sipinjam/datasources/kegiatan_datasource.dart';
+import 'package:sipinjam/datasources/peminjaman_datasource.dart';
 import 'package:sipinjam/models/kegiatan_model.dart';
 import 'package:sipinjam/models/peminjam_model.dart';
+import 'package:sipinjam/models/peminjaman_model.dart';
 import 'package:sipinjam/providers/kegiatan_provider.dart';
 
 import '../../config/failure.dart';
@@ -147,7 +149,51 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
     keteranganController.dispose();
   }
 
-  int? sesi;
+  KegiatanModel? kegiatan;
+  RuanganModel? ruangan;
+  DateTime? tanggal;
+  String? sesi;
+
+  pinjam() {
+    PeminjamanDatasource.postPeminjaman(
+      kegiatan?.idKegiatan,
+      ruangan?.idRuangan,
+      tanggal,
+      sesi,
+      keteranganController.text,
+    ).then(
+      (value) {
+        value.fold(
+          (failure) {
+            switch (failure.runtimeType) {
+              case ServerFailure _:
+                setPostPeminjaman(ref, 'Server Error');
+                break;
+              case NotFoundFailure _:
+                setPostPeminjaman(ref, 'Error Not Found');
+                break;
+              case ForbiddenFailure _:
+                setPostPeminjaman(ref, 'You don\'t have access');
+                break;
+              case BadRequestFailure _:
+                setPostPeminjaman(ref, 'Bad request');
+                break;
+              case UnauthorizedFailure _:
+                setPostPeminjaman(ref, 'Unauthorised');
+                break;
+              default:
+                setPostPeminjaman(ref, 'Request Error');
+                break;
+            }
+          },
+          (result) {
+            setPostPeminjaman(ref, 'Success');
+            const SnackBar(content: Text('Peminjaman berhasil diajukan'));
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -204,10 +250,8 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
                       child: Consumer(
                         builder: (_, wiRef, __) {
                           final ruanganEntry = wiRef.watch(ruanganProvider);
-                          final ruanganSelect =
-                              wiRef.watch(ruanganSelectedProvider);
-                          ruanganController.text =
-                              ruanganSelect?.namaRuangan ?? '';
+                          ruangan = wiRef.watch(ruanganSelectedProvider);
+                          ruanganController.text = ruangan?.namaRuangan ?? '';
                           return DropdownMenu(
                             hintText: 'Pilih Ruangan',
                             enableFilter: true,
@@ -275,6 +319,7 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
                                             lastDate: DateTime(9999),
                                           ).then((value) {
                                             if (value != null) {
+                                              tanggal = value;
                                               tanggalController.text =
                                                   AppFormat.justDate(value);
                                             }
@@ -302,7 +347,7 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
                     Consumer(
                       builder: (_, wiRef, __) {
                         final sesiSelected = wiRef.watch(sesiSelectedProvider);
-                        sesi = sesiSelected;
+                        sesi = sesiSelected.toString();
                         return SizedBox(
                             width: double.infinity,
                             child: StaggeredGrid.count(
@@ -436,7 +481,9 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
                 margin: const EdgeInsets.only(bottom: 8),
                 width: double.infinity,
                 child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      pinjam();
+                    },
                     child: const Text(
                       'Pinjam Ruangan',
                       style: TextStyle(color: Colors.white),
@@ -478,8 +525,8 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
           Consumer(
             builder: (_, wiRef, __) {
               final kegiatanEntry = wiRef.watch(kegiatanProvider);
-              final kegiatanSelect = wiRef.watch(kegiatanSelected);
-              kegiatanController.text = kegiatanSelect?.namaKegiatan ?? '';
+              kegiatan = wiRef.watch(kegiatanSelected);
+              kegiatanController.text = kegiatan?.namaKegiatan ?? '';
               return Container(
                 padding: const EdgeInsets.only(left: 8),
                 decoration: BoxDecoration(
