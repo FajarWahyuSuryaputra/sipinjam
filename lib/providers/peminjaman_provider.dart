@@ -21,3 +21,12 @@ class PeminjamanList extends StateNotifier<List<PeminjamanModel>> {
     state = newData;
   }
 }
+
+// sesi peminjaman (form)
+final sesiSelectedProvider = StateProvider.autoDispose<int?>(
+  (ref) => null,
+);
+
+setSesiSelected(WidgetRef ref, int? newSesi) {
+  ref.read(sesiSelectedProvider.notifier).state = newSesi;
+}

@@ -34,10 +34,6 @@ setImgSelected(WidgetRef ref, int? index, String newStatus) {
   ref.read(imgSelectedProvider(index).notifier).state = newStatus;
 }
 
-// final widgetRoomItem = StateProvider.autoDispose<Widget>(
-
-// );
-
 // search ruangan provider
 final heightContainerProvider = StateProvider.family.autoDispose<double, int>(
   (ref, index) => 175,
@@ -53,4 +49,13 @@ final indexSearchProvider = StateProvider.autoDispose<int?>(
 
 setIndexSearch(WidgetRef ref, int? idRuangan) {
   ref.read(indexSearchProvider.notifier).state = idRuangan;
+}
+
+// peminjaman form
+final ruanganSelectedProvider = StateProvider.autoDispose<RuanganModel?>(
+  (ref) => null,
+);
+
+setRuanganSelected(WidgetRef ref, RuanganModel? newStatus) {
+  ref.read(ruanganSelectedProvider.notifier).state = newStatus;
 }

@@ -66,9 +66,8 @@ class _RoomPageState extends ConsumerState<RoomPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     getRuangan();
+    super.initState();
   }
 
   @override
