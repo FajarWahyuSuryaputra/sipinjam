@@ -1,3 +1,4 @@
+import 'package:d_info/d_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sipinjam/config/app_colors.dart';
@@ -181,6 +182,17 @@ class _CalendarState extends ConsumerState<Calendar> {
     super.dispose();
   }
 
+  final List<Color> _colorInfo = [
+    Colors.amber,
+    Colors.orange,
+    Colors.red,
+  ];
+  final List<String> _textInfo = [
+    'Sesi Pagi',
+    'Sesi Siang',
+    'Sesi Sudah Penuh',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -189,6 +201,7 @@ class _CalendarState extends ConsumerState<Calendar> {
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
           child: SingleChildScrollView(
               child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'CALENDAR',
@@ -221,28 +234,31 @@ class _CalendarState extends ConsumerState<Calendar> {
                             formatButtonVisible: false, titleCentered: true),
                         calendarBuilders: CalendarBuilders(
                           defaultBuilder: (context, date, _) {
-                            final hasEvent = peminjamanList.any((event) =>
-                                event.tglPeminjaman.year == date.year &&
-                                event.tglPeminjaman.month == date.month &&
-                                event.tglPeminjaman.day == date.day);
+                            final matchingEvents = peminjamanList.where(
+                              (e) =>
+                                  e.tglPeminjaman.year == date.year &&
+                                  e.tglPeminjaman.month == date.month &&
+                                  e.tglPeminjaman.day == date.day,
+                            );
 
-                            if (hasEvent) {
+                            if (matchingEvents.isNotEmpty) {
+                              final event = matchingEvents.first;
                               return Container(
-                                decoration: const BoxDecoration(
-                                  color: Colors.amber,
+                                decoration: BoxDecoration(
+                                  color: _colorInfo[
+                                      int.parse(event.sesiPeminjaman) - 1],
                                   shape: BoxShape.circle,
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
                                   date.day.toString(),
                                   style: const TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold),
+                                    color: Colors.white,
+                                  ),
                                 ),
                               );
                             }
 
-                            // Default tampilan kalau tidak ada event
                             return Center(
                               child: Text(date.day.toString()),
                             );
@@ -280,26 +296,16 @@ class _CalendarState extends ConsumerState<Calendar> {
           children: List.generate(
             3,
             (index) {
-              List<Color> colorInfo = [
-                Colors.amber,
-                Colors.orange,
-                Colors.red,
-              ];
-              List<String> textInfo = [
-                'Sesi Pagi',
-                'Sesi Siang',
-                'Sesi Sudah Penuh',
-              ];
               return Container(
                 width: double.infinity,
                 height: 50,
                 margin: EdgeInsets.only(bottom: index != 2 ? 4 : 0),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4),
-                    color: colorInfo[index]),
+                    color: _colorInfo[index]),
                 child: Center(
                   child: Text(
-                    textInfo[index],
+                    _textInfo[index],
                     style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

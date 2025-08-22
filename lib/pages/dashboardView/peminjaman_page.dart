@@ -188,7 +188,12 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
           },
           (result) {
             setPostPeminjaman(ref, 'Success');
-            const SnackBar(content: Text('Peminjaman berhasil diajukan'));
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Peminjaman berhasil diajukan'),
+                backgroundColor: Colors.green,
+              ),
+            );
           },
         );
       },
@@ -216,264 +221,7 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
               const SizedBox(
                 height: 8,
               ),
-              Container(
-                width: MediaQuery.sizeOf(context).width,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: AppColors.gray,
-                    boxShadow: const [
-                      BoxShadow(
-                          color: Color.fromARGB(255, 61, 61, 61),
-                          offset: Offset(2, 2),
-                          blurRadius: 2)
-                    ]),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Ruangan',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: AppColors.biruTua),
-                    ),
-                    const SizedBox(
-                      height: 2,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 8),
-                      decoration: BoxDecoration(
-                          color: AppColors.putih,
-                          border: Border.all(),
-                          borderRadius: BorderRadius.circular(8)),
-                      child: Consumer(
-                        builder: (_, wiRef, __) {
-                          final ruanganEntry = wiRef.watch(ruanganProvider);
-                          ruangan = wiRef.watch(ruanganSelectedProvider);
-                          ruanganController.text = ruangan?.namaRuangan ?? '';
-                          return DropdownMenu(
-                            hintText: 'Pilih Ruangan',
-                            enableFilter: true,
-                            controller: ruanganController,
-                            focusNode: ruanganNode,
-                            width: double.infinity,
-                            inputDecorationTheme: const InputDecorationTheme(
-                                border: InputBorder.none),
-                            dropdownMenuEntries: ruanganEntry.isNotEmpty
-                                ? ruanganEntry.map(
-                                    (ruangan) {
-                                      return DropdownMenuEntry(
-                                          value: ruangan,
-                                          label: ruangan.namaRuangan);
-                                    },
-                                  ).toList()
-                                : [
-                                    const DropdownMenuEntry(
-                                        value: null, label: '')
-                                  ],
-                            onSelected: (value) {
-                              setRuanganSelected(wiRef, value);
-                              FocusScope.of(context).unfocus();
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 4,
-                    ),
-                    const Text(
-                      'Tanggal Peminjaman',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: AppColors.biruTua),
-                    ),
-                    const SizedBox(
-                      height: 2,
-                    ),
-                    Consumer(
-                      builder: (_, wiRef, __) {
-                        return Container(
-                            padding: const EdgeInsets.only(left: 8),
-                            decoration: BoxDecoration(
-                                color: AppColors.putih,
-                                border: Border.all(),
-                                borderRadius: BorderRadius.circular(8)),
-                            child: TextField(
-                              readOnly: true,
-                              controller: tanggalController,
-                              onTap: () {
-                                // print('ditekan');
-                              },
-                              textAlignVertical: const TextAlignVertical(y: 0),
-                              decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'Pilih Tanggal Pinjam',
-                                  suffixIcon: IconButton(
-                                      onPressed: () => showDatePicker(
-                                            context: context,
-                                            initialDate: DateTime.now(),
-                                            firstDate: DateTime(1970),
-                                            lastDate: DateTime(9999),
-                                          ).then((value) {
-                                            if (value != null) {
-                                              tanggal = value;
-                                              tanggalController.text =
-                                                  AppFormat.justDate(value);
-                                            }
-                                          }),
-                                      icon: const Icon(
-                                        Icons.calendar_month_outlined,
-                                        color: AppColors.biruTua,
-                                      ))),
-                            ));
-                      },
-                    ),
-                    const SizedBox(
-                      height: 4,
-                    ),
-                    const Text(
-                      'Sesi Peminjaman',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: AppColors.biruTua),
-                    ),
-                    const SizedBox(
-                      height: 2,
-                    ),
-                    Consumer(
-                      builder: (_, wiRef, __) {
-                        final sesiSelected = wiRef.watch(sesiSelectedProvider);
-                        sesi = sesiSelected.toString();
-                        return SizedBox(
-                            width: double.infinity,
-                            child: StaggeredGrid.count(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 2,
-                              crossAxisSpacing: 2,
-                              children: [
-                                StaggeredGridTile.count(
-                                  crossAxisCellCount: 1,
-                                  mainAxisCellCount: .4,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setSesiSelected(wiRef, 1);
-                                    },
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                            color: AppColors.putih,
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            border: sesiSelected == 1
-                                                ? Border.all(
-                                                    color: AppColors.biruMuda,
-                                                    width: 2,
-                                                  )
-                                                : Border.all()),
-                                        child: const Center(
-                                          child: Text(
-                                            'Sesi Pagi',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        )),
-                                  ),
-                                ),
-                                StaggeredGridTile.count(
-                                  crossAxisCellCount: 1,
-                                  mainAxisCellCount: .4,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setSesiSelected(wiRef, 2);
-                                    },
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                            color: AppColors.putih,
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            border: sesiSelected == 2
-                                                ? Border.all(
-                                                    color: AppColors.biruMuda,
-                                                    width: 2,
-                                                  )
-                                                : Border.all()),
-                                        child: const Center(
-                                          child: Text(
-                                            'Sesi Siang',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        )),
-                                  ),
-                                ),
-                                StaggeredGridTile.count(
-                                  crossAxisCellCount: 2,
-                                  mainAxisCellCount: .4,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setSesiSelected(wiRef, 3);
-                                    },
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                            color: AppColors.putih,
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            border: sesiSelected == 3
-                                                ? Border.all(
-                                                    color: AppColors.biruMuda,
-                                                    width: 2,
-                                                  )
-                                                : Border.all()),
-                                        child: const Center(
-                                          child: Text(
-                                            'Full Sesi',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        )),
-                                  ),
-                                ),
-                              ],
-                            ));
-                      },
-                    ),
-                    const SizedBox(
-                      height: 4,
-                    ),
-                    const Text(
-                      'Keterangan',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: AppColors.biruTua),
-                    ),
-                    const SizedBox(
-                      height: 2,
-                    ),
-                    Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                            color: AppColors.putih,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all()),
-                        child: TextField(
-                          controller: keteranganController,
-                          maxLines: 3,
-                          onTapOutside: (event) =>
-                              FocusScope.of(context).unfocus(),
-                        )),
-                  ],
-                ),
-              ),
+              peminjamanCard(context),
               const SizedBox(
                 height: 8,
               ),
@@ -482,7 +230,32 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
                 width: double.infinity,
                 child: ElevatedButton(
                     onPressed: () {
-                      pinjam();
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Konfirmasi Peminjaman'),
+                              content: const Text(
+                                  'Apakah anda yakin ingin meminjam ruangan ini?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                  child: const Text('Batal'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    pinjam();
+                                    Navigator.pop(context);
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                  child: const Text('Ya'),
+                                ),
+                              ],
+                            );
+                          });
                     },
                     child: const Text(
                       'Pinjam Ruangan',
@@ -493,6 +266,260 @@ class _PeminjamanPageState extends ConsumerState<PeminjamanPage> {
           ),
         ),
       )),
+    );
+  }
+
+  Container peminjamanCard(BuildContext context) {
+    return Container(
+      width: MediaQuery.sizeOf(context).width,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: AppColors.gray,
+          boxShadow: const [
+            BoxShadow(
+                color: Color.fromARGB(255, 61, 61, 61),
+                offset: Offset(2, 2),
+                blurRadius: 2)
+          ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Ruangan',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppColors.biruTua),
+          ),
+          const SizedBox(
+            height: 2,
+          ),
+          Container(
+            padding: const EdgeInsets.only(left: 8),
+            decoration: BoxDecoration(
+                color: AppColors.putih,
+                border: Border.all(),
+                borderRadius: BorderRadius.circular(8)),
+            child: Consumer(
+              builder: (_, wiRef, __) {
+                final ruanganEntry = wiRef.watch(ruanganProvider);
+                ruangan = wiRef.watch(ruanganSelectedProvider);
+                ruanganController.text = ruangan?.namaRuangan ?? '';
+                return DropdownMenu(
+                  hintText: 'Pilih Ruangan',
+                  enableFilter: true,
+                  controller: ruanganController,
+                  focusNode: ruanganNode,
+                  width: double.infinity,
+                  inputDecorationTheme:
+                      const InputDecorationTheme(border: InputBorder.none),
+                  dropdownMenuEntries: ruanganEntry.isNotEmpty
+                      ? ruanganEntry.map(
+                          (ruangan) {
+                            return DropdownMenuEntry(
+                                value: ruangan, label: ruangan.namaRuangan);
+                          },
+                        ).toList()
+                      : [const DropdownMenuEntry(value: null, label: '')],
+                  onSelected: (value) {
+                    setRuanganSelected(wiRef, value);
+                    FocusScope.of(context).unfocus();
+                  },
+                );
+              },
+            ),
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+          const Text(
+            'Tanggal Peminjaman',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppColors.biruTua),
+          ),
+          const SizedBox(
+            height: 2,
+          ),
+          Consumer(
+            builder: (_, wiRef, __) {
+              return Container(
+                  padding: const EdgeInsets.only(left: 8),
+                  decoration: BoxDecoration(
+                      color: AppColors.putih,
+                      border: Border.all(),
+                      borderRadius: BorderRadius.circular(8)),
+                  child: TextField(
+                    readOnly: true,
+                    controller: tanggalController,
+                    textAlignVertical: const TextAlignVertical(y: 0),
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Pilih Tanggal Pinjam',
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1970),
+                                lastDate: DateTime(9999),
+                              ).then((value) {
+                                if (value != null) {
+                                  tanggal = value;
+                                  tanggalController.text =
+                                      AppFormat.justDate(value);
+                                }
+                              });
+                              FocusScope.of(context).unfocus();
+                            },
+                            icon: const Icon(
+                              Icons.calendar_month_outlined,
+                              color: AppColors.biruTua,
+                            ))),
+                  ));
+            },
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+          const Text(
+            'Sesi Peminjaman',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppColors.biruTua),
+          ),
+          const SizedBox(
+            height: 2,
+          ),
+          Consumer(
+            builder: (_, wiRef, __) {
+              final sesiSelected = wiRef.watch(sesiSelectedProvider);
+              sesi = sesiSelected.toString();
+              return SizedBox(
+                  width: double.infinity,
+                  child: StaggeredGrid.count(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 2,
+                    crossAxisSpacing: 2,
+                    children: [
+                      StaggeredGridTile.count(
+                        crossAxisCellCount: 1,
+                        mainAxisCellCount: .4,
+                        child: GestureDetector(
+                          onTap: () {
+                            setSesiSelected(wiRef, 1);
+                          },
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  color: AppColors.putih,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: sesiSelected == 1
+                                      ? Border.all(
+                                          color: AppColors.biruMuda,
+                                          width: 2,
+                                        )
+                                      : Border.all()),
+                              child: const Center(
+                                child: Text(
+                                  'Sesi Pagi',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              )),
+                        ),
+                      ),
+                      StaggeredGridTile.count(
+                        crossAxisCellCount: 1,
+                        mainAxisCellCount: .4,
+                        child: GestureDetector(
+                          onTap: () {
+                            setSesiSelected(wiRef, 2);
+                          },
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  color: AppColors.putih,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: sesiSelected == 2
+                                      ? Border.all(
+                                          color: AppColors.biruMuda,
+                                          width: 2,
+                                        )
+                                      : Border.all()),
+                              child: const Center(
+                                child: Text(
+                                  'Sesi Siang',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              )),
+                        ),
+                      ),
+                      StaggeredGridTile.count(
+                        crossAxisCellCount: 2,
+                        mainAxisCellCount: .4,
+                        child: GestureDetector(
+                          onTap: () {
+                            setSesiSelected(wiRef, 3);
+                          },
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  color: AppColors.putih,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: sesiSelected == 3
+                                      ? Border.all(
+                                          color: AppColors.biruMuda,
+                                          width: 2,
+                                        )
+                                      : Border.all()),
+                              child: const Center(
+                                child: Text(
+                                  'Full Sesi',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              )),
+                        ),
+                      ),
+                    ],
+                  ));
+            },
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+          const Text(
+            'Keterangan',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppColors.biruTua),
+          ),
+          const SizedBox(
+            height: 2,
+          ),
+          Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  color: AppColors.putih,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all()),
+              child: TextField(
+                controller: keteranganController,
+                scrollPadding: const EdgeInsets.all(0),
+                maxLines: 3,
+                onTapOutside: (event) => FocusScope.of(context).unfocus(),
+              )),
+        ],
+      ),
     );
   }
 

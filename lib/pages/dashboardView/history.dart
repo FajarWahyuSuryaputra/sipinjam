@@ -102,6 +102,12 @@ class _HistoryState extends ConsumerState<History> {
                 }
               }
 
+              final List<String> textInfo = [
+                'Sesi Pagi',
+                'Sesi Siang',
+                'Full Sesi',
+              ];
+
               return SizedBox(
                 width: double.infinity,
                 height: MediaQuery.sizeOf(context).height,
@@ -118,8 +124,9 @@ class _HistoryState extends ConsumerState<History> {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: const [
                               BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(4, 4),
+                                color: Color.fromARGB(255, 61, 61, 61),
+                                offset: Offset(2, 2),
+                                blurRadius: 2,
                               )
                             ],
                           ),
@@ -138,14 +145,26 @@ class _HistoryState extends ConsumerState<History> {
                                 const SizedBox(
                                   height: 4,
                                 ),
-                                Text(
-                                  peminjaman.namaKegiatan,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                  ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      peminjaman.namaKegiatan,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    Text(
+                                      textInfo[
+                                          int.parse(peminjaman.sesiPeminjaman) -
+                                              1],
+                                      style: const TextStyle(fontSize: 12),
+                                    )
+                                  ],
                                 ),
                                 const SizedBox(
-                                  height: 14,
+                                  height: 10,
                                 ),
                                 Container(
                                   height: 3,
